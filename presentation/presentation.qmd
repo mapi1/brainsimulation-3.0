@@ -1,0 +1,68 @@
+---
+title: Brain Simulation 3.0
+subtitle: Introducing simple, fast, and reproducible workflows with `TVB-O` & `TVB-Optim`
+
+format:
+  clean-revealjs:
+    width: 1244
+    height: 750
+    toc-font-size: 1.5em
+    css: style.css
+    cap-location: top
+    footer: "© Marius Pille, Leon Martin, Petra Ritter, Charité University Medicine Berlin"
+    code-overflow: wrap
+    preview-links: false
+    self-contained: true
+    include-in-header:
+      - header.html
+    # template-partials:
+    #   - title-slide.html
+
+    margin: 0.05
+    mermaid-format: html
+    mermaid:
+      theme: neutral
+    embed-resources: true
+    preload-iframes: true
+    default-image-extension: svg
+
+author:
+  - name: Marius Pille
+    orcid: 0009-0000-5087-8450
+    email: marius.pille@bih-charite.de
+    affiliations: Berlin Institute of Health at Charité University Medicine
+  - name: Leon Martin
+    orcid: 0000-0002-2599-0165
+    email: leon.martin@bih-charite.de
+    affiliations: Berlin Institute of Health at Charité University Medicine
+date: last-modified
+bibliography: bibliography.bib
+---
+
+## Background
+
+- why bother?
+- problems we want to solve
+
+## Configure models with `TVB-O`
+[@Martin2025]
+
+### What's new
+- Discrete Models
+- PDEs
+- New Backends
+  - Jax
+  - tvboptim
+  - pyrates
+  - julia
+  - cuda
+  - neuroML
+  - neuroblox?
+  - tvb-cpp?
+  - jaxley?
+
+## Run and Optimize models with `TVB-Optim`
+[@Pille2025]
+
+
+## References
