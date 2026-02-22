@@ -1,0 +1,207 @@
+:root {
+    --bg-color: #ffffff;
+    --text-color: #111111;
+    --heading-color: #0b0b0b;
+    --link-color: #1a73e8;
+    --link-hover: #1558b0;
+    --card-border: #626262;
+    --card-bg: #ffffff;
+    --card-text: #111111;
+    --card-hover-bg: #333333;
+    --card-hover-text: #ffffff;
+    --toggle-bg: rgba(0, 0, 0, 0.08);
+    --toggle-border: rgba(0, 0, 0, 0.2);
+    --toggle-text: #111111;
+}
+
+html[data-theme="dark"] {
+    --bg-color: #0f1115;
+    --text-color: #e5e7eb;
+    --heading-color: #f9fafb;
+    --link-color: #8ab4ff;
+    --link-hover: #aecbff;
+    --title-color: #f9fafb;
+    --subtitle-color: #8ab4ff;
+    --card-border: #3f3f46;
+    --card-bg: #111827;
+    --card-text: #e5e7eb;
+    --card-hover-bg: #1f2937;
+    --card-hover-text: #ffffff;
+    --toggle-bg: rgba(255, 255, 255, 0.08);
+    --toggle-border: rgba(255, 255, 255, 0.2);
+    --toggle-text: #e5e7eb;
+}
+
+.reveal {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+    color: var(--heading-color);
+}
+
+.reveal a {
+    color: var(--link-color);
+}
+
+.reveal a:hover {
+    color: var(--link-hover);
+}
+
+.reveal pre.sourceCode code {
+    /* height: 500px; */
+    max-height: 550px !important;
+}
+
+.theme-toggle {
+    position: fixed;
+    bottom: 18px;
+    left: 20px;
+    z-index: 1000;
+    border: 1px solid var(--toggle-border);
+    background: var(--toggle-bg);
+    color: var(--toggle-text);
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 14px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: 52px;
+    height: 28px;
+    justify-content: space-between;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.theme-toggle:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 2px;
+}
+
+.theme-toggle__icon {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border-radius: 50%;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.theme-toggle__sun {
+    color: #f7b955;
+    background: rgba(247, 185, 85, 0.18);
+}
+
+.theme-toggle__moon {
+    color: #9aa5b1;
+    background: rgba(154, 165, 177, 0.18);
+}
+
+.theme-toggle[data-theme="dark"] .theme-toggle__sun {
+    opacity: 0.35;
+    transform: scale(0.9);
+}
+
+.theme-toggle[data-theme="dark"] .theme-toggle__moon {
+    opacity: 1;
+    transform: scale(1.05);
+    color: #e2e8f0;
+    background: rgba(226, 232, 240, 0.18);
+}
+
+.theme-toggle[data-theme="light"] .theme-toggle__moon {
+    opacity: 0.35;
+    transform: scale(0.9);
+}
+
+.theme-toggle[data-theme="light"] .theme-toggle__sun {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+html[data-theme="dark"] #title-slide .title,
+html[data-theme="dark"] #title-slide .author,
+html[data-theme="dark"] #title-slide .quarto-title-author-name,
+html[data-theme="dark"] #title-slide .quarto-title-author-email,
+html[data-theme="dark"] #title-slide .quarto-title-affiliation,
+html[data-theme="dark"] #title-slide .institute {
+    color: var(--title-color) !important;
+}
+
+html[data-theme="dark"] #title-slide .subtitle {
+    color: var(--subtitle-color) !important;
+}
+
+
+.card-button {
+    /* background-color: #1e1e1e;  */
+    border: 1px solid var(--card-border);
+    /* Border color */
+    color: var(--card-text);
+    background-color: var(--card-bg);
+    padding: 20px;
+    /* Padding for the card */
+    text-align: left;
+    /* Left-align text */
+    text-decoration: none;
+    /* Remove underline */
+    display: flex;
+    /* Flex display */
+    flex-direction: column;
+    /* Column direction */
+    justify-content: flex-start;
+    border-radius: 10px;
+    /* Rounded corners */
+    font-size: 18px;
+    /* Font size */
+    transition-duration: 0.4s;
+    /* Transition for hover effects */
+    margin: 10px;
+    /* Add space between cards */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    /* Shadow effect */
+    flex: 1;
+    /* Allow flex-grow to adjust size */
+}
+
+.card-button:hover {
+    background-color: var(--card-hover-bg);
+    /* Darker background on hover */
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    /* Larger shadow on hover */
+    color: var(--card-hover-text);
+    /* Ensure text stays white */
+}
+
+.card-button h3 {
+    margin: 0;
+    /* Remove default margin */
+    font-size: 24px;
+    /* Title font size */
+    font-weight: bold;
+    /* Bold title */
+}
+
+.card-button p {
+    margin: 10px 0 0 0;
+    /* Margin for the paragraph */
+    font-size: 16px;
+    /* Paragraph font size */
+}
+
+
+  .math.display .MathJax  {
+    font-size: 70% !important;
+    /* color: #b22222; */
+  }

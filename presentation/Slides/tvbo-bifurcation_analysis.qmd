@@ -1,0 +1,40 @@
+## Bifurcation Analysis
+
+```{python}
+from IPython.display import Markdown
+from tvbo import Continuation, Dynamics, SimulationExperiment
+model = Dynamics.from_ontology('Generic2dOscillator')
+
+cont = Continuation.from_string(
+"""\
+name: eq_in_a
+label: "Equilibrium branch in a"
+
+description: >-
+    Continue the equilibrium branch of the Generic2dOscillator as parameter a is varied. Detect Hopf bifurcations and continue periodic orbits from all Hopf points.
+
+dynamics: Generic2dOscillator
+
+free_parameters:
+    - name: I
+      domain:
+          lo: "-10"
+          hi: "20"
+
+branches:
+    - name: po_from_hopf
+      source_point: "hopf:all"
+"""
+)
+
+exp = SimulationExperiment(dynamics=model, continuations=[cont])
+bif_result_jl = exp.run("bifurcationkit.jl")
+bif_result_jl.plot(VOI='V')
+```
+
+## Different Backends
+
+```{python}
+bif_result_py = exp.run("pyrates-bifurcation")
+bif_result_py.plot(VOI='V')
+```
