@@ -15,9 +15,8 @@ format:
     self-contained: true
     include-in-header:
       - header.html
-    # template-partials:
-    #   - title-slide.html
-
+    template-partials:
+      - title-slide.html
     margin: 0.05
     mermaid-format: html
     mermaid:
@@ -38,7 +37,10 @@ author:
 date: last-modified
 bibliography: bibliography.bib
 ---
-
+```{python}
+import bsplot
+bsplot.style.use('black-transparent')
+```
 ## Background
 
 - why bother?
@@ -47,19 +49,9 @@ bibliography: bibliography.bib
 ## Configure models with `TVB-O`
 [@Martin2025]
 
-### What's new
-- Discrete Models
-- PDEs
-- New Backends
-  - Jax
-  - tvboptim
-  - pyrates
-  - julia
-  - cuda
-  - neuroML
-  - neuroblox?
-  - tvb-cpp?
-  - jaxley?
+{{< include Slides/tvbo.qmd >}}
+
+{{< include Slides/tvbo-jansen1995-replication.qmd >}}
 
 ## Run and Optimize models with `TVB-Optim`
 [@Pille2025]

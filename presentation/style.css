@@ -205,3 +205,46 @@ html[data-theme="dark"] #title-slide .subtitle {
     font-size: 70% !important;
     /* color: #b22222; */
   }
+
+/* ── Title slide background media ───────────────────────────────────────── */
+
+/*
+  Tune these variables to adjust the background appearance:
+  --title-bg-opacity   : 0.0 (invisible) → 1.0 (fully opaque)
+  --title-bg-scale     : fraction of the slide width (e.g. 0.65 = 65 %)
+  --title-bg-rotate    : CSS rotation angle (e.g. -10deg, 5deg, 0deg)
+*/
+:root {
+  --title-bg-opacity : 0.12;
+  --title-bg-scale   : 65%;
+  --title-bg-rotate  : -8deg;
+}
+
+#title-slide {
+  position: relative;
+  overflow: hidden;
+}
+
+.title-bg-media {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.title-bg-image {
+  width: var(--title-bg-scale);
+  max-width: 700px;
+  opacity: var(--title-bg-opacity);
+  transform: rotate(var(--title-bg-rotate));
+  object-fit: contain;
+}
+
+/* Ensure all title slide text/content sits above the background layer */
+#title-slide > :not(.title-bg-media) {
+  position: relative;
+  z-index: 1;
+}

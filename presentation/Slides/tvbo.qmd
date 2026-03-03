@@ -1,0 +1,76 @@
+## What's new
+- Discrete Models
+- PDEs
+- New Backends
+  - Jax
+  - tvboptim
+  - pyrates
+  - julia
+  - cuda
+  - neuroML
+  - neuroblox?
+  - tvb-cpp?
+  - jaxley?
+
+## {auto-animate=true}
+```{python code-line-numbers="|1-15|17-18"}
+# | echo: true
+# | output-location: column-fragment
+
+kur_spec = """\
+name: KuramotoOscillator
+parameters:
+    omega:
+        name: omega
+        value: 1.0
+        unit: rad/ms
+state_variables:
+    theta:
+        name: theta
+        equation:
+            rhs: omega + I 
+        initial_value: 0
+coupling_terms:
+    I:
+"""
+
+from tvbo import Dynamics
+Dynamics.from_string(kur_spec).run().plot()
+```
+
+## {auto-animate=true}
+```{python code-line-numbers="|1-15|17-18"}
+# | echo: true
+# | output-location: column-fragment
+
+kur_spec = """\
+name: KuramotoOscillator
+parameters:
+    omega:
+        name: omega
+        value: 1.0
+        unit: rad/ms
+state_variables:
+    theta:
+        name: theta
+        equation:
+            rhs: omega + I 
+        initial_value: 0
+coupling_terms:
+    I:
+
+derived_variables:
+    signal:
+        equation:
+                rhs: sin(theta)
+output:
+    - signal
+"""
+from tvbo import SimulationExperiment, Dynamics
+
+model = Dynamics.from_string(kur_spec)
+
+SimulationExperiment(dynamics=model).run(duration=100).integration.main.get_state(
+    "signal"
+).plot()
+```
