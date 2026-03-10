@@ -12,65 +12,119 @@
   - tvb-cpp?
   - jaxley?
 
-## {auto-animate=true}
-```{python code-line-numbers="|1-15|17-18"}
-# | echo: true
-# | output-location: column-fragment
+## Node Dynamics {auto-animate=true}
+```{python}
+#| echo: true
+#| output-location: column-fragment
+#| code-line-numbers: "2|3-6|7-12|13-18|19-20|23-29|31"
 
 kur_spec = """\
 name: KuramotoOscillator
 parameters:
     omega:
-        name: omega
         value: 1.0
         unit: rad/ms
+
 state_variables:
     theta:
-        name: theta
         equation:
-            rhs: omega + I 
+            rhs: omega
         initial_value: 0
-coupling_terms:
-    I:
-"""
-
-from tvbo import Dynamics
-Dynamics.from_string(kur_spec).run().plot()
-```
-
-## {auto-animate=true}
-```{python code-line-numbers="|1-15|17-18"}
-# | echo: true
-# | output-location: column-fragment
-
-kur_spec = """\
-name: KuramotoOscillator
-parameters:
-    omega:
-        name: omega
-        value: 1.0
-        unit: rad/ms
-state_variables:
-    theta:
-        name: theta
-        equation:
-            rhs: omega + I 
-        initial_value: 0
-coupling_terms:
-    I:
 
 derived_variables:
     signal:
         equation:
-                rhs: sin(theta)
+            rhs: sin(theta)
+                
 output:
     - signal
 """
+
+from tvbo import Dynamics, SimulationExperiment
+
+exp = SimulationExperiment(
+    dynamics=Dynamics.from_string(kur_spec),
+    integration={'duration':100}
+)
+results = exp.run()
+
+results.integration.get_state('signal').plot()
+```
+
+## Network Dynamics {auto-animate=true}
+```{python}
+#| echo: true
+#| output-location: column-fragment
+#| code-line-numbers: "|1-15|16-25|26-45|46-58|59-61|62-68"
+
+kur_network = """\
+dynamics:
+  name: KuramotoOscillator
+  parameters:
+    omega:
+      value: 0.1
+      unit: rad/ms
+  state_variables:
+    theta:
+      equation:
+        rhs: omega + I
+      initial_value: 0
+  coupling_terms:
+    I:
+  derived_variables:
+    signal:
+      equation:
+        rhs: sin(theta)
+  output:
+    - signal
+
+network:
+    nodes:
+        - id: 0
+          label: Node1
+          state:
+            theta: 0.0
+        - id: 1
+          label: Node2
+          state:
+            theta: 10
+    edges:
+        - source: 0
+          target: 1
+          parameters:
+            weight: 1
+        - source: 1
+          target: 0
+          parameters:
+            weight: 1
+    coupling:
+        I:
+          incoming_states: theta
+          local_states: theta
+          parameters:
+            N: 
+              value: 2
+            a:
+              value: 0.01
+          pre_expression:
+            rhs: sin(incoming_states - local_states)
+          post_expression:
+            rhs: a*gx / N
+
+integration:
+    duration: 1000
+
+"""
 from tvbo import SimulationExperiment, Dynamics
 
-model = Dynamics.from_string(kur_spec)
+exp = SimulationExperiment.from_string(kur_network)
 
-SimulationExperiment(dynamics=model).run(duration=100).integration.main.get_state(
-    "signal"
-).plot()
+exp.run().integration.get_state("signal").plot()
 ```
+
+##
+```{python}
+#| code-line-numbers: "|1"
+exp.network.coupling['I'].symbolic()
+```
+

@@ -12,6 +12,15 @@
     --toggle-bg: rgba(0, 0, 0, 0.08);
     --toggle-border: rgba(0, 0, 0, 0.2);
     --toggle-text: #111111;
+    --slide-height: 750px;
+    --slide-content-height: 675px;
+    --slide-footer-space: 2.6rem;
+    --slide-header-space: 1rem;
+    --slide-subheading-space: 1.4rem;
+    --code-bottom-padding: 0.55rem;
+    --code-max-height: calc(var(--slide-content-height) - var(--slide-footer-space));
+    --code-max-height-with-heading: calc(var(--slide-content-height) - var(--slide-header-space) - var(--slide-footer-space));
+    --code-max-height-with-subheading: calc(var(--slide-content-height) - var(--slide-header-space) - var(--slide-subheading-space) - var(--slide-footer-space));
 }
 
 html[data-theme="dark"] {
@@ -54,9 +63,247 @@ html[data-theme="dark"] {
     color: var(--link-hover);
 }
 
+.reveal pre.sourceCode,
+.reveal div.sourceCode {
+    max-height: var(--code-max-height) !important;
+}
+
+.reveal pre.sourceCode,
 .reveal pre.sourceCode code {
-    /* height: 500px; */
-    max-height: 550px !important;
+    box-sizing: border-box;
+}
+
+.reveal pre.sourceCode code {
+    display: block;
+    max-height: var(--code-max-height) !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    padding-bottom: var(--code-bottom-padding) !important;
+}
+
+.reveal .slides section:has(h1, h2, h3, h4, h5, h6) pre.sourceCode,
+.reveal .slides section:has(h1, h2, h3, h4, h5, h6) div.sourceCode,
+.reveal .slides section:has(h1, h2, h3, h4, h5, h6) pre.sourceCode code {
+    max-height: var(--code-max-height-with-heading) !important;
+}
+
+/* Code blocks — VS Code Light Modern (default) */
+.reveal pre.sourceCode,
+.reveal div.sourceCode {
+    background-color: #ffffff !important;
+    border: 1px solid #e1e4e8 !important;
+}
+
+.reveal pre.sourceCode code {
+    background-color: #ffffff !important;
+    color: #3B3B3B !important;
+}
+
+.reveal pre.sourceCode code>span,
+.reveal pre.sourceCode code span.hljs-ln-code {
+    color: #3B3B3B !important;
+}
+
+.reveal pre.sourceCode code span.kw {
+    color: #0000ff !important;
+    font-weight: bold;
+}
+
+.reveal pre.sourceCode code span.cf {
+    color: #AF00DB !important;
+}
+
+.reveal pre.sourceCode code span.im {
+    color: #AF00DB !important;
+}
+
+.reveal pre.sourceCode code span.dt {
+    color: #267f99 !important;
+}
+
+.reveal pre.sourceCode code span.dv {
+    color: #098658 !important;
+}
+
+.reveal pre.sourceCode code span.bn {
+    color: #098658 !important;
+}
+
+.reveal pre.sourceCode code span.fl {
+    color: #098658 !important;
+}
+
+.reveal pre.sourceCode code span.st {
+    color: #a31515 !important;
+}
+
+.reveal pre.sourceCode code span.ch {
+    color: #a31515 !important;
+}
+
+.reveal pre.sourceCode code span.ss {
+    color: #a31515 !important;
+}
+
+.reveal pre.sourceCode code span.co {
+    color: #008000 !important;
+    font-style: italic;
+}
+
+.reveal pre.sourceCode code span.fu {
+    color: #795E26 !important;
+}
+
+.reveal pre.sourceCode code span.va {
+    color: #001080 !important;
+}
+
+.reveal pre.sourceCode code span.at {
+    color: #267f99 !important;
+}
+
+.reveal pre.sourceCode code span.op {
+    color: #000000 !important;
+}
+
+.reveal pre.sourceCode code span.bu {
+    color: #795E26 !important;
+}
+
+.reveal pre.sourceCode code span.ot {
+    color: #AF00DB !important;
+}
+
+/* Code blocks — VS Code Dark Modern (dark theme override) */
+html[data-theme="dark"] .reveal pre.sourceCode,
+html[data-theme="dark"] .reveal div.sourceCode {
+    background-color: #1F1F1F !important;
+    border: 1px solid #3e3e42 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code {
+    background-color: #1F1F1F !important;
+    color: #CCCCCC !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code>span,
+html[data-theme="dark"] .reveal pre.sourceCode code span.hljs-ln-code {
+    color: #CCCCCC !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.kw {
+    color: #569cd6 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.cf {
+    color: #C586C0 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.im {
+    color: #C586C0 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.dt {
+    color: #4EC9B0 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.dv {
+    color: #b5cea8 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.bn {
+    color: #b5cea8 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.fl {
+    color: #b5cea8 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.st {
+    color: #ce9178 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.ch {
+    color: #ce9178 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.ss {
+    color: #ce9178 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.co {
+    color: #6A9955 !important;
+    font-style: italic;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.fu {
+    color: #DCDCAA !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.va {
+    color: #9CDCFE !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.at {
+    color: #9CDCFE !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.op {
+    color: #d4d4d4 !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.bu {
+    color: #DCDCAA !important;
+}
+
+html[data-theme="dark"] .reveal pre.sourceCode code span.ot {
+    color: #C586C0 !important;
+}
+
+/* Top-align columns so figures sit flush with code boxes */
+.reveal .columns {
+    align-items: flex-start !important;
+}
+
+/* Remove extra spacing around images/figures inside columns */
+.reveal .columns .column p,
+.reveal .columns .column figure {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.reveal .columns .column img {
+    margin: 0 !important;
+    vertical-align: top;
+}
+
+/* Remove gap between header bold text and content */
+.reveal .columns .column>p:first-child {
+    margin-bottom: 0.2em !important;
+}
+
+/* Align code blocks flush with column top content */
+.reveal .columns .column pre {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.reveal .columns .column div.sourceCode {
+    margin-top: 0 !important;
+}
+
+/* Keep code naturally sized in columns; only cap height */
+.reveal .slides section:has(h1, h2, h3, h4, h5, h6) .columns .column>div.sourceCode>pre.sourceCode,
+.reveal .slides section:has(h1, h2, h3, h4, h5, h6) .columns .column>div.sourceCode>pre.sourceCode>code.sourceCode {
+    max-height: var(--code-max-height-with-heading) !important;
+}
+
+/* Subheading slides keep extra space so code never overlaps the footer */
+.reveal .slides section:has(h3, h4, h5, h6) .columns .column>div.sourceCode>pre.sourceCode,
+.reveal .slides section:has(h1+p, h2+p, h3+p, h4+p, h5+p, h6+p) .columns .column>div.sourceCode>pre.sourceCode,
+.reveal .slides section:has(h3, h4, h5, h6) .columns .column>div.sourceCode>pre.sourceCode>code.sourceCode,
+.reveal .slides section:has(h1+p, h2+p, h3+p, h4+p, h5+p, h6+p) .columns .column>div.sourceCode>pre.sourceCode>code.sourceCode {
+    max-height: var(--code-max-height-with-subheading) !important;
 }
 
 .theme-toggle {
@@ -201,10 +448,10 @@ html[data-theme="dark"] #title-slide .subtitle {
 }
 
 
-  .math.display .MathJax  {
+.math.display .MathJax {
     font-size: 70% !important;
     /* color: #b22222; */
-  }
+}
 
 /* ── Title slide background media ───────────────────────────────────────── */
 
@@ -215,36 +462,36 @@ html[data-theme="dark"] #title-slide .subtitle {
   --title-bg-rotate    : CSS rotation angle (e.g. -10deg, 5deg, 0deg)
 */
 :root {
-  --title-bg-opacity : 0.12;
-  --title-bg-scale   : 65%;
-  --title-bg-rotate  : -8deg;
+    --title-bg-opacity: 0.12;
+    --title-bg-scale: 65%;
+    --title-bg-rotate: -8deg;
 }
 
 #title-slide {
-  position: relative;
-  overflow: hidden;
+    position: relative;
+    overflow: hidden;
 }
 
 .title-bg-media {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 0;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 0;
 }
 
 .title-bg-image {
-  width: var(--title-bg-scale);
-  max-width: 700px;
-  opacity: var(--title-bg-opacity);
-  transform: rotate(var(--title-bg-rotate));
-  object-fit: contain;
+    width: var(--title-bg-scale);
+    max-width: 700px;
+    opacity: var(--title-bg-opacity);
+    transform: rotate(var(--title-bg-rotate));
+    object-fit: contain;
 }
 
 /* Ensure all title slide text/content sits above the background layer */
-#title-slide > :not(.title-bg-media) {
-  position: relative;
-  z-index: 1;
+#title-slide> :not(.title-bg-media) {
+    position: relative;
+    z-index: 1;
 }

@@ -2,9 +2,7 @@
   (function () {
     const storageKey = "tvb-o-ptim-theme";
     const root = document.documentElement;
-    const prefersDark = () =>
-      window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initialTheme = localStorage.getItem(storageKey) || (prefersDark() ? "dark" : "light");
+    const initialTheme = localStorage.getItem(storageKey) || "light";
 
     let toggleButton;
 
@@ -46,9 +44,9 @@
     if (window.matchMedia) {
       window
         .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", (event) => {
+        .addEventListener("change", () => {
           if (!localStorage.getItem(storageKey)) {
-            applyTheme(event.matches ? "dark" : "light");
+            applyTheme("light");
           }
         });
     }

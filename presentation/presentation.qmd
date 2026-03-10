@@ -38,8 +38,9 @@ date: last-modified
 bibliography: bibliography.bib
 ---
 ```{python}
+#| code-line-numbers: "|1|2"
 import bsplot
-bsplot.style.use('black-transparent')
+bsplot.style.use('tvbo-transparent')
 ```
 ## Background
 
