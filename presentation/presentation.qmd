@@ -42,10 +42,50 @@ bibliography: bibliography.bib
 import bsplot
 bsplot.style.use('tvbo-transparent')
 ```
-## Background
+## Motivation
 
-- why bother?
-- problems we want to solve
+- What is wrong with TVB?
+- Can we do better?
+
+## Classic TVB - History
+
+::: {.incremental}
+* Python code base - first commit on GitHib 12th Feb 2015 - in that time: 
+  - Python 2.7 was still the standard
+  - Python packaging was still a mess (pip only just got bundled with python + setup.py)
+  - Machine Learning meant gradient boosted trees & CNNs for vision
+:::
+
+## Classic TVB - Math
+
+$$
+\begin{align*}
+dS_i &= \left[f_d(S_i, \theta^d, C_i, I_i) \right]dt + g(S_i, \theta^g)\, dW_i \\
+C_i &= f_c^{\text{post}}\Big(\sum_j A_{ij}\, f_c^{\text{pre}}(S_i, S_j(t-\tau_{ij}), \theta^c), S_i, \theta^c\Big)
+\end{align*} \\
+$$
+
+::: {style="font-size: 0.55em;"}
+
+**State Evolution**
+
+- $S_i$ - state variables at node $i$
+- $f_d$ - dynamics function with parameters $\theta^d$
+- $C_i$ - coupling input from connected nodes
+- $I_i$ - external input (stimulation, driving signals)
+- $g$ - noise diffusion coefficient with parameters $\theta^g$
+- $dW_i$ - Wiener process (stochastic fluctuations)
+
+**Coupling**
+
+- $f_c^{\text{pre}}$ - pre-aggregation transformation
+- $A_{ij}$ - structural connectivity weight ($j \to i$)
+- $\tau_{ij}$ - transmission delay (tract length / conduction speed)
+- $f_c^{\text{post}}$ - post-aggregation transformation
+- $\theta^c$ - coupling parameters
+
+:::
+
 
 ## Configure models with `TVB-O`
 [@Martin2025]
@@ -56,6 +96,8 @@ bsplot.style.use('tvbo-transparent')
 
 ## Run and Optimize models with `TVB-Optim`
 [@Pille2025]
+
+{{< include Slides/tvboptim.qmd >}}
 
 
 ## References

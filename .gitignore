@@ -1,1 +1,7 @@
 presentation/presentation_files
+.venv/
+uv.lock
+pyproject.toml
+.python-version
+hello.py
+/.quarto/
