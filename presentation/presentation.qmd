@@ -50,7 +50,7 @@ bsplot.style.use('tvbo-transparent')
 ## Classic TVB - History
 
 ::: {.incremental}
-* Python code base - first commit on GitHib 12th Feb 2015 - in that time: 
+* Python code base - first commit on GitHib 12th Feb 2015 - in that time:
   - Python 2.7 was still the standard
   - Python packaging was still a mess (pip only just got bundled with python + setup.py)
   - Machine Learning meant gradient boosted trees & CNNs for vision
@@ -92,7 +92,7 @@ $$
 
 {{< include Slides/tvbo.qmd >}}
 
-{{< include Slides/tvbo-jansen1995-replication.qmd >}}
+<!-- {{< include Slides/tvbo-jansen1995-replication.qmd >}} -->
 
 ## Run and Optimize models with `TVB-Optim`
 [@Pille2025]
