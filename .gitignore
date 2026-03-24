@@ -5,3 +5,4 @@ pyproject.toml
 .python-version
 hello.py
 /.quarto/
+/.claude/skills

@@ -95,12 +95,15 @@ $$
 <!-- {{< include Slides/tvbo-jansen1995-replication.qmd >}} -->
 
 ## Run and Optimize models with `TVB-Optim`
-[@Pille2025]
+
+![A JAX-based framework for brain network simulation and gradient-based optimization[@Pille2025].](figures/tvboptim.png)
 
 {{< include Slides/tvboptim.qmd >}}
 
 ## Biological Mechanistic Model-Discovery
 
+## Hands-On
 
+* Link:
 
 ## References

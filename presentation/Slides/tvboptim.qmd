@@ -1,48 +1,177 @@
 ## Basic Ideas and Concepts
 
-* JAX
-* separation of computation from data
-* Building incremental complexity f(g(h(x)))
-* Build once, run anywhere
+:::: {.columns}
+::: {.column width="50%"}
+
+::: {.fragment fragment-index=1}
+- **Define networks in JAX:** dynamics, coupling, graph, noise, inputs
+:::
+
+::: {.fragment fragment-index=2}
+- **Separation of computation from data:** `prepare` returns a pure function + state
+:::
+
+::: {.fragment fragment-index=3}
+- **Incremental complexity:** compose simple pieces: `loss(observation(model(state)))`
+:::
+
+::: {.fragment fragment-index=4}
+- **Build once, run anywhere:** CPU, GPU, TPU without code changes
+:::
+
+:::
+
+::: {.column width="50%"}
+
+::: {.fragment fragment-index=1}
+```{python}
+#| eval: false
+#| echo: true
+network = Network(
+    dynamics=ReducedWongWang(w=0.7),
+    coupling=DelayedLinearCoupling(G=0.5),
+    graph=DenseDelayGraph(weights, delays),
+    noise=AdditiveNoise(sigma=0.01),
+    external_input={"stimulus": PulseTrainInput()},
+)
+```
+:::
+
+::: {.fragment fragment-index=2}
+```{python}
+#| eval: false
+#| echo: true
+model, state = prepare(
+    network, Heun(), t1=1000.0, dt=1.0
+    )
+result = model(state) # same as solve(network, ...)
+```
+:::
+
+::: {.fragment fragment-index=3}
+```{python}
+#| eval: false
+#| echo: true
+def observe(state):
+    return compute_fc(model(state))
+
+def loss(state):
+    return rmse(observe(state), fc_emp)
+```
+:::
+
+::: {.fragment fragment-index=4}
+```{python}
+#| eval: false
+#| echo: true
+# Same code, any backend
+jax.devices("cpu")  # or "gpu", "tpu"
+
+# Automatic vectorization & parallelization
+batched = jax.vmap(model)(states)
+distributed = jax.pmap(model)(states)
+```
+:::
+
+:::
+::::
+
+## Performance Compare to TVB
+
+::: {.fragment}
+![](figures/tvboptim_perf.png){width="70%"}
+:::
+
+::: {.fragment}
+$\rightarrow$ robustly >10x faster on CPU
+:::
 
 ## Easy Explorations
 
+::: {.fragment}
 Define a Parameter Space:
-```{python}                                                                                                                                                                                                     
+```{python}
 #| eval: false
 #| echo: true
-#| code-line-numbers: "|1|3-4|5-6|8-9"                                                                                                                                                                          
-model, state = prepare(network, Heun(), t1=1000, dt=1.0)                                                                                                                                                        
-   
-state.external.stimulus.amplitude = DataAxis([0.5, 1.0, 2.0, 5.0], group='stimulus')                                                                                                                            
+#| code-line-numbers: "1|3-4|5-6|8-9"
+model, state = prepare(network, Heun(), t1=1000, dt=1.0)
+
+state.external.stimulus.amplitude = DataAxis([0.5, 1.0, 2.0, 5.0], group='stimulus')
 state.external.stimulus.delay     = DataAxis([10., 20., 50., 80.], group='stimulus')
-state.coupling.G                  = GridAxis(0.01, 0.5, 8)                                                                                                                                                      
-state.noise.sigma                 = LogGridAxis(1e-4, 1e-1, 6)
-                                                                                                                                                                                                                  
-space = Space(state, mode='product', key=jax.random.key(0))
-# 4 stimuli x 8 G x 6 sigma = 192 simulations                                                                                                                                                                   
-```                                                       
+state.coupling.G                  = GridAxis(0.01, 0.5, 8)
+state.noise.sigma                 = LogGridAxis(1e-4, 1e-1, 4)
 
+space = Space(state, mode='product', key=jax.random.key(0))
+# 4 stimuli x 8 G x 4 sigma = 128 simulations
+```
+:::
+
+::: {.fragment}
 Execute computations over a Space:
-```{python}                                                                                                                                                                                                     
+```{python}
 #| eval: false
 #| echo: true
-#| code-line-numbers: "|1-3|5-6"                                                                                                                                                                                
-def simulate(state):                                      
-    ...  # run TVB simulation
-    return result
+executor = ParallelExecution(loss, space, n_vmap=len(space), n_pmap=1)
+losses = executor.run()
+```
+::: 
 
-executor = ParallelExecution(simulate, space, n_vmap=len(space), n_pmap=1)                                                                                                                                      
-results = executor.run()
-``` 
+## Scaling to GPUs
+
+::: {.fragment}
+![](figures/gpu_perf.png){width="100%"}
+:::
+
+
+## The Power of Reverse-Mode Automatic Differentiation (AD)
+
+::: {.incremental}
+- Parameter spaces explode combinatorially $\rightarrow$ grid search becomes infeasible at scale
+- Reverse-mode AD computes gradients w.r.t. **all** parameters in a single pass $\rightarrow$ $\mathcal{O}(1)$ vs $\mathcal{O}(N)$
+:::
+
+::: {.fragment}
+
+![](figures/ad_perf.png){width="70%"}
+
+:::
 
 ## High-Dimensional Parameter Optimization
 
-* highlight the magic of reverse mode differentiation
-* show parameter mechanism
-* simple optimization example (loss function + OptaxOptimizer)
+::: {.fragment}
+Mark parameters for optimization:
+```{python}
+#| eval: false
+#| echo: true
+#| code-line-numbers: "1|2"
+state.dynamics.w    = Parameter(state.dynamics.w)
+state.coupling.G    = BoundedParameter(state.coupling.G, low=0.0, high=3.0)
+```
+:::
+
+::: {.fragment}
+Define a loss and optimize:
+```{python}
+#| eval: false
+#| echo: true
+#| code-line-numbers: "1|2"
+opt = OptaxOptimizer(loss, optax.adam(learning_rate=1e-3))
+fitted_state, fitting_data = opt.run(state, max_steps=500)
+```
+:::
+
+::: {.fragment}
+Refine with heterogeneous parameters:
+```{python}
+#| eval: false
+#| echo: true
+#| code-line-numbers: "1|2"
+fitted_state.dynamics.w = Parameter(jnp.full(n_nodes, fitted_state.dynamics.w))
+final_state, fitting_data = opt.run(fitted_state, max_steps=500)
+```
+:::
 
 ## Going Beyond: Hybrid Brain Network Models
 
 * UDEs
-* 
+* Bayesian Inference (SBI vs. HMC)
