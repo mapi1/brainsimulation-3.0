@@ -114,12 +114,16 @@ $$
 :::: {.columns}
 
 ::: {.column width="50%"}
+
+::: {.fragment fragment-index=1}
+
 ```yaml
 name: PendulumSystem
 parameters:
     c:
         value: 0.001
         unit: 1/ms
+        description:
     omega0:
         value: 0.01
         unit: rad/ms
@@ -140,13 +144,19 @@ state_variables:
             rhs: -c*omega - omega0**2 * sin(theta)
 ```
 :::
+:::
 ::: {.column width="50%"}
 
+::: {.fragment fragment-index=2}
 ```python
 from tvbo import Dynamics
 pendulum = Dynamics.from_string(dynamics_yaml)
 pendulum.render('report')
 ```
+:::
+
+
+::: {.fragment fragment-index=3}
 
 #### PendulumSystem
 
@@ -166,6 +176,8 @@ $$
 | $c$ | 0.001 | $\mathrm{ms}^{-1}$ | None |
 | $\omega_{0}$ | 0.01 | $\frac{\mathrm{rad}}{\mathrm{ms}}$ | None |
 | $L$ | 1.0 | $\mathrm{m}$ | None |
+:::
+
 
 :::
 

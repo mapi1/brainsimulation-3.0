@@ -7,3 +7,4 @@ hello.py
 /.quarto/
 /.claude/skills
 _freeze
+presentation/*.html
