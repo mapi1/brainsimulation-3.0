@@ -1,4 +1,11 @@
-## What's new
+## TVB-O: Knowledge Management for Digital Brain Twins
+
+### Basic Ideas and Concepts
+
+* separation model specification from code implementation (PDF for brain simulation)
+* 
+
+
 - Discrete Models
 - PDEs
 - New Backends
