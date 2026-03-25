@@ -12,15 +12,9 @@
     --toggle-bg: rgba(0, 0, 0, 0.08);
     --toggle-border: rgba(0, 0, 0, 0.2);
     --toggle-text: #111111;
-    --slide-height: 750px;
-    --slide-content-height: 675px;
-    --slide-footer-space: 2.6rem;
-    --slide-header-space: 1rem;
-    --slide-subheading-space: 1.4rem;
+    /* JS sets --code-body-height per slide = slideH - footerH - headingH */
+    --code-body-height: 600px;
     --code-bottom-padding: 0.55rem;
-    --code-max-height: calc(var(--slide-content-height) - var(--slide-footer-space));
-    --code-max-height-with-heading: calc(var(--slide-content-height) - var(--slide-header-space) - var(--slide-footer-space));
-    --code-max-height-with-subheading: calc(var(--slide-content-height) - var(--slide-header-space) - var(--slide-subheading-space) - var(--slide-footer-space));
 }
 
 html[data-theme="dark"] {
@@ -63,9 +57,15 @@ html[data-theme="dark"] {
     color: var(--link-hover);
 }
 
+/* Explicit baseline font-size; JS shrinks this when content overflows */
+.reveal pre.sourceCode {
+    font-size: 0.55em;
+    transition: font-size 0.15s ease;
+}
+
 .reveal pre.sourceCode,
 .reveal div.sourceCode {
-    max-height: var(--code-max-height) !important;
+    max-height: var(--code-body-height) !important;
 }
 
 .reveal pre.sourceCode,
@@ -75,16 +75,10 @@ html[data-theme="dark"] {
 
 .reveal pre.sourceCode code {
     display: block;
-    max-height: var(--code-max-height) !important;
+    max-height: var(--code-body-height) !important;
     overflow-y: auto !important;
     overflow-x: auto !important;
     padding-bottom: var(--code-bottom-padding) !important;
-}
-
-.reveal .slides section:has(h1, h2, h3, h4, h5, h6) pre.sourceCode,
-.reveal .slides section:has(h1, h2, h3, h4, h5, h6) div.sourceCode,
-.reveal .slides section:has(h1, h2, h3, h4, h5, h6) pre.sourceCode code {
-    max-height: var(--code-max-height-with-heading) !important;
 }
 
 /* Code blocks — VS Code Light Modern (default) */
@@ -292,18 +286,10 @@ html[data-theme="dark"] .reveal pre.sourceCode code span.ot {
     margin-top: 0 !important;
 }
 
-/* Keep code naturally sized in columns; only cap height */
-.reveal .slides section:has(h1, h2, h3, h4, h5, h6) .columns .column>div.sourceCode>pre.sourceCode,
-.reveal .slides section:has(h1, h2, h3, h4, h5, h6) .columns .column>div.sourceCode>pre.sourceCode>code.sourceCode {
-    max-height: var(--code-max-height-with-heading) !important;
-}
-
-/* Subheading slides keep extra space so code never overlaps the footer */
-.reveal .slides section:has(h3, h4, h5, h6) .columns .column>div.sourceCode>pre.sourceCode,
-.reveal .slides section:has(h1+p, h2+p, h3+p, h4+p, h5+p, h6+p) .columns .column>div.sourceCode>pre.sourceCode,
-.reveal .slides section:has(h3, h4, h5, h6) .columns .column>div.sourceCode>pre.sourceCode>code.sourceCode,
-.reveal .slides section:has(h1+p, h2+p, h3+p, h4+p, h5+p, h6+p) .columns .column>div.sourceCode>pre.sourceCode>code.sourceCode {
-    max-height: var(--code-max-height-with-subheading) !important;
+/* Code in columns: inherits --code-body-height set per-slide by JS */
+.reveal .columns .column div.sourceCode>pre.sourceCode,
+.reveal .columns .column div.sourceCode>pre.sourceCode>code.sourceCode {
+    max-height: var(--code-body-height) !important;
 }
 
 .theme-toggle {

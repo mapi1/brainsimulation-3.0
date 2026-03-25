@@ -1,11 +1,11 @@
-## TVB-O: Knowledge Management for Digital Brain Twins
-
-### Basic Ideas and Concepts
+## Basic Ideas and Concepts
 
 * separation model specification from code implementation (PDF for brain simulation)
-* 
+* One specification - multiple backends
 
 
+
+## What's New
 - Discrete Models
 - PDEs
 - New Backends
@@ -20,42 +20,41 @@
   - jaxley?
 
 ## Node Dynamics {auto-animate=true}
-```{python}
-#| echo: true
-#| output-location: column-fragment
-#| code-line-numbers: "2|3-6|7-12|13-18|19-20|23-29|31"
 
-kur_spec = """\
-name: KuramotoOscillator
+```python
+#| code-line-numbers: "2|3-6|7-12|13-18|19-20|23-29|31"
+from tvbo import Dynamics, SimulationExperiment
+
+dynamics_yaml = """
+name: PendulumSystem
 parameters:
-    omega:
-        value: 1.0
+    c:
+        value: 0.001
+        unit: 1/ms
+    omega0:
+        value: 0.01
         unit: rad/ms
+    L:
+        value: 1.0
+        unit: m
 
 state_variables:
     theta:
+        unit: rad
+        initial_value: 1.0
         equation:
             rhs: omega
-        initial_value: 0
-
-derived_variables:
-    signal:
+    omega:
+        unit: rad/ms
+        initial_value: 0.0
         equation:
-            rhs: sin(theta)
-                
-output:
-    - signal
+            rhs: -c*omega - omega0**2 * sin(theta)
 """
 
-from tvbo import Dynamics, SimulationExperiment
-
-exp = SimulationExperiment(
-    dynamics=Dynamics.from_string(kur_spec),
-    integration={'duration':100}
+pendulum = SimulationExperiment(
+    dynamics=Dynamics.from_string(dynamics_yaml),
 )
-results = exp.run()
-
-results.integration.get_state('signal').plot()
+results = pendulum.run(duration=5_000)
 ```
 
 ## Network Dynamics {auto-animate=true}

@@ -37,11 +37,6 @@ author:
 date: last-modified
 bibliography: bibliography.bib
 ---
-```{python}
-#| code-line-numbers: "|1|2"
-import bsplot
-bsplot.style.use('tvbo-transparent')
-```
 ## Motivation
 
 - What is wrong with TVB?
@@ -87,18 +82,105 @@ $$
 :::
 
 
-## Configure models with `TVB-O`
-[@Martin2025]
+## Specify Reproducible Simulation Experiments with:
 
-{{< include Slides/tvbo.qmd >}}
+
+![Knowledge Management for Digital Brain Twins [@Martin2025]](figures/tvbo_logo.png)
+
+## Basic Ideas and Concepts
+
+* separation model specification from code implementation (PDF for brain simulation)
+* One specification - multiple backends
+
+
+
+## What's New
+- Discrete Models
+- PDEs
+- New Backends
+  - Jax
+  - tvboptim
+  - pyrates
+  - julia
+  - cuda
+  - neuroML
+  - neuroblox?
+  - tvb-cpp?
+  - jaxley?
+
+## Node Dynamics {auto-animate=true}
+
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```yaml
+name: PendulumSystem
+parameters:
+    c:
+        value: 0.001
+        unit: 1/ms
+    omega0:
+        value: 0.01
+        unit: rad/ms
+    L:
+        value: 1.0
+        unit: m
+
+state_variables:
+    theta:
+        unit: rad
+        initial_value: 1.0
+        equation:
+            rhs: omega
+    omega:
+        unit: rad/ms
+        initial_value: 0.0
+        equation:
+            rhs: -c*omega - omega0**2 * sin(theta)
+```
+:::
+::: {.column width="50%"}
+
+```python
+from tvbo import Dynamics
+pendulum = Dynamics.from_string(dynamics_yaml)
+pendulum.render('report')
+```
+
+#### PendulumSystem
+
+
+##### State Equations
+$$
+\dot{\theta} = \omega
+$$
+$$
+\dot{\omega} = - c*\omega - \omega_{0}^{2}*\sin{\left(\theta \right)}
+$$
+
+##### Parameters
+
+| **Parameter** | **Value** | **Unit** | **Description** |
+|---------------|-----------|----------|-----------------|
+| $c$ | 0.001 | $\mathrm{ms}^{-1}$ | None |
+| $\omega_{0}$ | 0.01 | $\frac{\mathrm{rad}}{\mathrm{ms}}$ | None |
+| $L$ | 1.0 | $\mathrm{m}$ | None |
+
+:::
+
+::::
+
+
+<!-- {{< include Slides/tvbo.qmd >}} -->
 
 <!-- {{< include Slides/tvbo-jansen1995-replication.qmd >}} -->
 
-## Run and Optimize models with `TVB-Optim`
+## Run and Optimize models with:
 
-![A JAX-based framework for brain network simulation and gradient-based optimization[@Pille2025].](figures/tvboptim.png)
+![A JAX-based framework for brain network simulation and gradient-based optimization [@Pille2025].](figures/tvboptim.png)
 
-{{< include Slides/tvboptim.qmd >}}
+<!-- {{< include Slides/tvboptim.qmd >}} -->
 
 ## Biological Mechanistic Model-Discovery
 

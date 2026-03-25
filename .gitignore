@@ -6,3 +6,4 @@ pyproject.toml
 hello.py
 /.quarto/
 /.claude/skills
+_freeze
