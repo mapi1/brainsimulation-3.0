@@ -180,7 +180,7 @@ $$
 
 ![A JAX-based framework for brain network simulation and gradient-based optimization [@Pille2025].](figures/tvboptim.png)
 
-<!-- {{< include Slides/tvboptim.qmd >}} -->
+{{< include Slides/tvboptim.qmd >}}
 
 ## Biological Mechanistic Model-Discovery
 
