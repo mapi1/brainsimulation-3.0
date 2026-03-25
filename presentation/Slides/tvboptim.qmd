@@ -101,7 +101,7 @@ state.external.stimulus.delay     = DataAxis([10., 20., 50., 80.], group='stimul
 state.coupling.G                  = GridAxis(0.01, 0.5, 8)
 state.noise.sigma                 = LogGridAxis(1e-4, 1e-1, 4)
 
-space = Space(state, mode='product', key=jax.random.key(0))
+space = Space(state, mode='product')
 # 4 stimuli x 8 G x 4 sigma = 128 simulations
 ```
 :::
@@ -111,6 +111,8 @@ Execute computations over a Space:
 ```{python}
 #| eval: false
 #| echo: true
+#| code-line-numbers: "1|2"
+
 executor = ParallelExecution(loss, space, n_vmap=len(space), n_pmap=1)
 losses = executor.run()
 ```
@@ -145,7 +147,7 @@ Mark parameters for optimization:
 #| echo: true
 #| code-line-numbers: "1|2"
 state.dynamics.w    = Parameter(state.dynamics.w)
-state.coupling.G    = BoundedParameter(state.coupling.G, low=0.0, high=3.0)
+state.coupling.G    = BoundedParameter(state.coupling.G, low=0.0, high=jnp.inf)
 ```
 :::
 
