@@ -60,7 +60,9 @@ pages:
     - job: render
       artifacts: true
   script:
-    - echo "Deploying to GitLab Pages"
+    # Move rendered presentation to root so it's served at /
+    - mv public/presentation/index.html public/index.html
+    - rm -rf public/presentation
   artifacts:
     paths:
       - public
