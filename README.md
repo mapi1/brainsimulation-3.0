@@ -8,7 +8,12 @@
 
 ### Prerequisites
 
-- [uv](https://docs.astral.sh/uv/getting-started/installation/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh   # standalone installer
+  # or, if you already have pip / conda:
+  pip install uv
+  ```
 - Python 3.10 or newer (uv installs one for you if needed)
 
 ### 1. Clone the repository
@@ -26,19 +31,9 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 uv pip install -e ".[cpu]"         # installs tvbo, tvboptim, bsplot, jax + extras
 ```
 
-### 3. Register the Jupyter kernel
+### 3. Open the notebook
 
-```bash
-python -m ipykernel install --user --name tvb-o-ptim --display-name "Python (tvb-o-ptim)"
-```
-
-### 4. Open the notebook
-
-```bash
-jupyter notebook notebooks/ReducedWongWang_Optimization_TVBOptim.ipynb
-```
-
-Select the **Python (tvb-o-ptim)** kernel and run all cells.
+Open `notebooks/ReducedWongWang_Optimization_TVBOptim.ipynb` in VS Code (or JupyterLab) **with the `.venv` activated** and select the `.venv` Python interpreter as the kernel.
 
 > **Tip – multi-core CPU simulation:** The notebook sets `XLA_FLAGS=--xla_force_host_platform_device_count=8`
 > at the top so JAX can parallelise across 8 virtual devices on a single CPU host.
