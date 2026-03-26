@@ -67,7 +67,7 @@ import h5py
 jax.config.update("jax_enable_x64", True)
 
 # Import from tvboptim
-from tvboptim.types import Parameter, Space, GridAxis
+from tvboptim.types import Parameter, BoundedParameter, NormalizedParameter, Space, GridAxis, collect_parameters
 from tvboptim.types.stateutils import show_parameters
 from tvboptim.execution import ParallelExecution, SequentialExecution
 from tvboptim.optim.optax import OptaxOptimizer
@@ -182,7 +182,7 @@ network = Network(
 
 # %%
 # Prepare simulation: compile model and initialize state
-t1 = 180_000  # Total simulation duration (ms) - 2 minutes
+t1 = 120_000  # Total simulation duration (ms) - 2 minutes
 dt = 4.0      # Integration timestep (ms)
 solver = BoundedSolver(Heun(), low=0.0, high=1.0)  # Bound S to [0, 1]
 model, state = prepare(network, solver, t1=t1, dt=dt)
@@ -410,7 +410,7 @@ G_min, G_max = min(G_vals), max(G_vals)
 w_min, w_max = min(w_vals), max(w_vals)
 
 # Create figure and axis
-fig, ax = plt.subplots(figsize=(8.1, 4.725))
+fig, ax = plt.subplots(figsize=(3., 4.), dpi = 200)
 
 # Create the heatmap
 im = ax.imshow(jnp.stack(exploration_results).reshape(n, n).T,
@@ -428,7 +428,7 @@ ax.scatter(G_init, w_init, color='white', s=100, marker='o',
 
 # Add annotation
 ax.annotate('Initial', xy=(G_init, w_init),
-            xytext=(G_init, w_init+0.05*(w_max-w_min)),
+            xytext=(G_init, w_init-0.05*(w_max-w_min)),
             color='white', fontweight='bold', ha='center', zorder=5,
             path_effects=[path_effects.withStroke(linewidth=3, foreground='black')])
 
@@ -469,9 +469,10 @@ fitted_state_het = copy.deepcopy(fitted_state)
 
 # # Make w regional (one value per node)
 fitted_state_het.dynamics.w.shape = (n_nodes,)
+fitted_state_het.dynamics.w = BoundedParameter(fitted_state_het.dynamics.w, 0, jnp.inf)
 
 # Also make I_o regional and mark as optimizable
-fitted_state_het.dynamics.I_o = Parameter(fitted_state_het.dynamics.I_o)
+fitted_state_het.dynamics.I_o = NormalizedParameter(fitted_state_het.dynamics.I_o)
 fitted_state_het.dynamics.I_o.shape = (n_nodes,)
 
 # Keep global coupling fixed at optimized value
@@ -483,7 +484,7 @@ show_parameters(fitted_state_het)
 
 # %%
 
-opt_het = OptaxOptimizer(loss, optax.adam(0.001), callback=cb)
+opt_het = OptaxOptimizer(loss, optax.adam(0.003), callback=cb)
 fitted_state_het, fitting_data_het = opt_het.run(fitted_state_het, max_steps=200)
 
 # %% [markdown]
@@ -563,33 +564,111 @@ plt.tight_layout()
 mean_connectivity = np.mean(weights, axis=1)
 
 # Extract fitted regional parameters
-w_fitted = fitted_state_het.dynamics.w.value.flatten()
-I_o_fitted = fitted_state_het.dynamics.I_o.value.flatten()
+w_fitted = collect_parameters(fitted_state_het.dynamics.w).flatten()
+I_o_fitted = collect_parameters(fitted_state_het.dynamics.I_o).flatten()
 
 # Get global optimization values for reference
 w_global = fitted_state.dynamics.w.value
 I_o_global = fitted_state.dynamics.I_o  # Not optimized in global fit, but initial value
 
-# Create figure
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8.1, 3.24))
+# Compute mean FC correlation per region (mean of off-diagonal row in fc_regional)
+fc_regional_nodiag = np.copy(fc_regional)
+np.fill_diagonal(fc_regional_nodiag, np.nan)
+mean_fc_corr = np.nanmean(fc_regional_nodiag, axis=1)
 
-# Plot w vs mean connectivity
-ax1.scatter(mean_connectivity, w_fitted, alpha=0.7, s=30, color='royalblue', edgecolors='k', linewidths=0.5)
-ax1.axhline(w_global, color='red', linestyle='--', linewidth=2, label=f'Global w = {w_global:.3f}')
+from scipy.stats import linregress
+
+def add_linear_fit(ax, x, y):
+    """Add a linear fit line with 95% confidence interval to an axis."""
+    slope, intercept, r_value, p_value, std_err = linregress(x, y)
+    x_sorted = np.sort(x)
+    y_fit = slope * x_sorted + intercept
+    # 95% CI for the regression line
+    n = len(x)
+    x_mean = np.mean(x)
+    se_line = std_err * np.sqrt(1/n + (x_sorted - x_mean)**2 / np.sum((x - x_mean)**2))
+    ax.plot(x_sorted, y_fit, color='grey', linewidth=1.5, zorder=2)
+    ax.fill_between(x_sorted, y_fit - 1.96*se_line, y_fit + 1.96*se_line,
+                    color='grey', alpha=0.2, zorder=1)
+
+# Create 2x2 figure
+fig, axes = plt.subplots(2, 2, figsize=(8.1, 6.48))
+
+# Top row: params vs mean incoming connectivity
+axes[0, 0].scatter(mean_connectivity, w_fitted, alpha=0.7, s=30, color='royalblue', edgecolors='k', linewidths=0.5)
+axes[0, 0].axhline(w_global, color='red', linestyle='--', linewidth=2, label=f'Global w = {w_global:.3f}')
+add_linear_fit(axes[0, 0], mean_connectivity, w_fitted)
+axes[0, 0].set_xlabel('Mean Incoming Connectivity')
+axes[0, 0].set_ylabel('Fitted w')
+axes[0, 0].set_title('w vs Connectivity')
+axes[0, 0].legend(loc='best')
+axes[0, 0].grid(True, alpha=0.3)
+
+axes[0, 1].scatter(mean_connectivity, I_o_fitted, alpha=0.7, s=30, color='royalblue', edgecolors='k', linewidths=0.5)
+axes[0, 1].axhline(I_o_global, color='red', linestyle='--', linewidth=2, label=f'Initial I_o = {I_o_global:.3f}')
+add_linear_fit(axes[0, 1], mean_connectivity, I_o_fitted)
+axes[0, 1].set_xlabel('Mean Incoming Connectivity')
+axes[0, 1].set_ylabel('Fitted I_o')
+axes[0, 1].set_title('I_o vs Connectivity')
+axes[0, 1].legend(loc='best')
+axes[0, 1].grid(True, alpha=0.3)
+
+# Bottom row: params vs mean FC correlation
+axes[1, 0].scatter(mean_fc_corr, w_fitted, alpha=0.7, s=30, color='royalblue', edgecolors='k', linewidths=0.5)
+axes[1, 0].axhline(w_global, color='red', linestyle='--', linewidth=2, label=f'Global w = {w_global:.3f}')
+add_linear_fit(axes[1, 0], mean_fc_corr, w_fitted)
+axes[1, 0].set_xlabel('Mean FC Correlation')
+axes[1, 0].set_ylabel('Fitted w')
+axes[1, 0].set_title('w vs Mean FC')
+axes[1, 0].legend(loc='best')
+axes[1, 0].grid(True, alpha=0.3)
+
+axes[1, 1].scatter(mean_fc_corr, I_o_fitted, alpha=0.7, s=30, color='royalblue', edgecolors='k', linewidths=0.5)
+axes[1, 1].axhline(I_o_global, color='red', linestyle='--', linewidth=2, label=f'Initial I_o = {I_o_global:.3f}')
+add_linear_fit(axes[1, 1], mean_fc_corr, I_o_fitted)
+axes[1, 1].set_xlabel('Mean FC Correlation')
+axes[1, 1].set_ylabel('Fitted I_o')
+axes[1, 1].set_title('I_o vs Mean FC')
+axes[1, 1].legend(loc='best')
+axes[1, 1].grid(True, alpha=0.3)
+
+plt.tight_layout()
+
+# %%
+
+# Plot w against I_o
+fig, ax = plt.subplots(figsize=(4.05, 4.05))
+ax.scatter(w_fitted, I_o_fitted, alpha=0.7, s=30, color='royalblue', edgecolors='k', linewidths=0.5)
+ax.axvline(w_global, color='red', linestyle='--', linewidth=1.5, alpha=0.7, label=f'Global w = {w_global:.3f}')
+ax.axhline(I_o_global, color='red', linestyle=':', linewidth=1.5, alpha=0.7, label=f'Initial I_o = {I_o_global:.3f}')
+ax.set_xlabel('Fitted w')
+ax.set_ylabel('Fitted I_o')
+ax.set_title('w vs I_o')
+ax.legend(loc='best')
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+
+# %%
+
+# Mean FC correlation vs mean incoming connectivity, colored by fitted parameters
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8.1, 3.6))
+
+sc1 = ax1.scatter(mean_connectivity, mean_fc_corr, c=w_fitted, cmap='cividis',
+                  alpha=0.7, s=40, edgecolors='k', linewidths=0.5)
+fig.colorbar(sc1, ax=ax1, label='Fitted w')
 ax1.set_xlabel('Mean Incoming Connectivity')
-ax1.set_ylabel('Fitted w (Excitatory Recurrence)')
-ax1.set_title('Regional Excitatory Recurrence Parameters')
-ax1.legend(loc='best')
+ax1.set_ylabel('Mean FC Correlation')
+ax1.set_title('Colored by w')
 ax1.grid(True, alpha=0.3)
 
-# Plot I_o vs mean connectivity
-ax2.scatter(mean_connectivity, I_o_fitted, alpha=0.7, s=30, color='royalblue', edgecolors='k', linewidths=0.5)
-ax2.axhline(I_o_global, color='red', linestyle='--', linewidth=2, label=f'Initial I_o = {I_o_global:.3f}')
+sc2 = ax2.scatter(mean_connectivity, mean_fc_corr, c=I_o_fitted, cmap='cividis',
+                  alpha=0.7, s=40, edgecolors='k', linewidths=0.5)
+fig.colorbar(sc2, ax=ax2, label='Fitted I_o')
 ax2.set_xlabel('Mean Incoming Connectivity')
-ax2.set_ylabel('Fitted I_o (External Input)')
-ax2.set_title('Regional External Input Parameters')
-ax2.legend(loc='best')
+ax2.set_ylabel('Mean FC Correlation')
+ax2.set_title('Colored by I_o')
 ax2.grid(True, alpha=0.3)
 
 plt.tight_layout()
+
 # %%
