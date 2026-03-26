@@ -45,10 +45,13 @@ render:
   stage: render
   before_script:
     - *install_quarto
-    # Core packages used in the presentation
-    # Both are on PyPI; tvbo[all] pulls JAX, sympy, etc.
-    - pip install -q uv || pip3 install -q uv
-    - uv pip install --system tvbo[all] bsplot
+    # Install uv if not already available
+    - command -v uv &>/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh
+    - export PATH="$HOME/.local/bin:$PATH"
+    # Create venv and install dependencies
+    - uv venv .venv --python ${PYTHON_VERSION}
+    - source .venv/bin/activate
+    - uv pip install tvbo[all] bsplot
   script:
     - cd ${PRESENTATION_DIR}
     - quarto render ${PRESENTATION_QMD} --output ${OUTPUT_HTML}
