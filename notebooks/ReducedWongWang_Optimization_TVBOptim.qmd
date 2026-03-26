@@ -52,9 +52,6 @@ import optax
 
 from IPython.display import Markdown
 
-# Jax enable x64
-jax.config.update("jax_enable_x64", True)
-
 # Import from tvboptim
 from tvboptim.types import Parameter, Space, GridAxis
 from tvboptim.types.stateutils import show_parameters
@@ -137,11 +134,6 @@ dynamics.state_variables["S"].noise = Noise(
 )
 ```
 
-```{python}
-from tvbo import Coupling
-Markdown(f"```python\n{Coupling.from_db("FastLinearCoupling").render_code('tvboptim')}\n```")
-```
-
 
 ## Building the Network Model
 
@@ -167,7 +159,7 @@ We prepare the network for simulation and run an initial transient to reach a qu
 
 ```{python}
 # Prepare simulation: compile model and initialize state
-t1 = 180_000  # Total simulation duration (ms) - 2 minutes
+t1 = 100_000  # Total simulation duration (ms) - 2 minutes
 dt = 4.0      # Integration timestep (ms)
 solver = BoundedSolver(Heun(), low=0.0, high=1.0)  # Bound S to [0, 1]
 model, state = prepare(network, solver, t1=t1, dt=dt)
