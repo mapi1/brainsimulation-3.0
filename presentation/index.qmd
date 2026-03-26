@@ -126,10 +126,10 @@ $$
 
 ## Hands-On
 
-* Link:
+:::{.r-fit-text}
+**wiki.ebrains.eu/bin/view/Collabs/brainsimulation-3-0/Lab**
+:::
 
-##
-
-{{< include ../notebooks/ReducedWongWang_Optimization_TVBOptim.qmd >}}
+![](figures/qrcode.png){fig-align="center"}
 
 ## References
