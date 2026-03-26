@@ -7,6 +7,8 @@ hello.py
 /.quarto/
 /.claude/skills
 presentation/*.html
+!presentation/header.html
+!presentation/title-slide.html
 presentation/_extensions/
 presentation/.jupyter_cache
 _freeze

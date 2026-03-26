@@ -60,7 +60,6 @@ html[data-theme="dark"] {
 /* Explicit baseline font-size; JS shrinks this when content overflows */
 .reveal pre.sourceCode {
     font-size: 0.55em;
-    transition: font-size 0.15s ease;
 }
 
 .reveal pre.sourceCode,
@@ -290,6 +289,14 @@ html[data-theme="dark"] .reveal pre.sourceCode code span.ot {
 .reveal .columns .column div.sourceCode>pre.sourceCode,
 .reveal .columns .column div.sourceCode>pre.sourceCode>code.sourceCode {
     max-height: var(--code-body-height) !important;
+}
+
+/* Cap output images/figures in columns to the same slide body height */
+.reveal .columns .column .cell-output-display img,
+.reveal .columns .column .cell-output-display .quarto-figure img {
+    max-height: var(--code-body-height) !important;
+    width: auto;
+    object-fit: contain;
 }
 
 .theme-toggle {

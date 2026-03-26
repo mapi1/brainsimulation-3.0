@@ -1,0 +1,174 @@
+<script>
+  (function () {
+    const storageKey = "tvb-o-ptim-theme";
+    const root = document.documentElement;
+    const initialTheme = localStorage.getItem(storageKey) || "light";
+
+    let toggleButton;
+
+    const updateToggleState = (theme) => {
+      if (!toggleButton) return;
+      toggleButton.setAttribute("aria-pressed", theme === "dark");
+      toggleButton.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+      toggleButton.dataset.theme = theme;
+    };
+
+    const applyTheme = (theme) => {
+      root.setAttribute("data-theme", theme);
+      updateToggleState(theme);
+    };
+
+    const setTheme = (theme) => {
+      localStorage.setItem(storageKey, theme);
+      applyTheme(theme);
+    };
+
+    const createToggle = () => {
+      toggleButton = document.createElement("button");
+      toggleButton.type = "button";
+      toggleButton.className = "theme-toggle";
+      toggleButton.innerHTML =
+        '<span class="theme-toggle__icon theme-toggle__sun" aria-hidden="true">☀</span>' +
+        '<span class="theme-toggle__icon theme-toggle__moon" aria-hidden="true">☾</span>';
+      toggleButton.addEventListener("click", () => {
+        const nextTheme = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        setTheme(nextTheme);
+      });
+      document.body.appendChild(toggleButton);
+      applyTheme(root.getAttribute("data-theme") || initialTheme);
+    };
+
+    applyTheme(initialTheme);
+    document.addEventListener("DOMContentLoaded", createToggle, { once: true });
+
+    if (window.matchMedia) {
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", () => {
+          if (!localStorage.getItem(storageKey)) {
+            applyTheme("light");
+          }
+        });
+    }
+  })();
+</script>
+
+<script>
+  /* ── Dynamic font-fit for Reveal.js ──────────────────────────────────────
+   * Per slide:
+   *  1. Measure actual footer height + slide heading height.
+   *  2. Set --code-body-height on the section so CSS max-height is exact.
+   *  3. Shrink whole-slide text (binary search) until it fits the body area.
+   *  4. Shrink each code block font to fit its now-correct max-height cap.
+   *
+   * Fitting happens ONCE per slide (on entry). Fragment events (including
+   * code-line-numbers highlights) never re-trigger fitting — they only
+   * toggle visibility of already-laid-out content.
+   * ─────────────────────────────────────────────────────────────────────── */
+  (function () {
+    'use strict';
+
+    var MIN_TEXT_EM   = 0.60;  // smallest full-slide text scale
+    var MIN_CODE_EM   = 0.32;  // smallest code font (dense fallback)
+    var DEFAULT_CODE_EM = 0.55; // code baseline (matches CSS)
+    var TOLERANCE     = 4;     // px — ignore sub-pixel overflow
+
+    var _footerH = null;  // measured once after ready
+
+    /* Measure the footer once; it doesn't change between slides. */
+    function footerHeight() {
+      if (_footerH !== null) return _footerH;
+      var footer = document.querySelector('.reveal .footer');
+      _footerH = footer ? footer.offsetHeight : 0;
+      return _footerH;
+    }
+
+    /* Height of the first direct heading in the slide (h1–h3), incl. margins. */
+    function headingHeight(slide) {
+      var h = slide.querySelector(':scope > h1, :scope > h2, :scope > h3');
+      if (!h) return 0;
+      var cs = getComputedStyle(h);
+      return h.offsetHeight + parseFloat(cs.marginTop || 0) + parseFloat(cs.marginBottom || 0);
+    }
+
+    /* ── Step 1: update --code-body-height on the slide section ── */
+    function setCodeBodyHeight(slide) {
+      var fH = footerHeight();
+      var hH = headingHeight(slide);
+      var bodyH = slide.clientHeight - fH - hH;
+      slide.style.setProperty('--code-body-height', Math.max(bodyH, 80) + 'px');
+    }
+
+    /* ── Step 2: shrink whole-slide text to fit slide height ── */
+    function fitSlideText(slide) {
+      slide.style.fontSize = '';  // reset to theme default
+
+      var targetH = slide.clientHeight;
+      if (!targetH || slide.scrollHeight <= targetH + TOLERANCE) return;
+
+      var lo = MIN_TEXT_EM, hi = 1.0, best = MIN_TEXT_EM;
+      for (var i = 0; i < 12; i++) {
+        var mid = (lo + hi) / 2;
+        slide.style.fontSize = mid + 'em';
+        if (slide.scrollHeight <= targetH + TOLERANCE) {
+          best = mid; lo = mid;
+        } else {
+          hi = mid;
+        }
+      }
+      slide.style.fontSize = best + 'em';
+    }
+
+    /* ── Step 3: shrink each code block font to its max-height cap ── */
+    function fitCodeBlocks(slide) {
+      slide.querySelectorAll('div.sourceCode > pre.sourceCode').forEach(function (pre) {
+        pre.style.fontSize = '';  // reset to CSS baseline
+
+        var code = pre.querySelector('code.sourceCode');
+        if (!code) return;
+
+        var maxH = parseFloat(getComputedStyle(code).maxHeight);
+        if (!maxH || !isFinite(maxH) || maxH <= 0) return;
+        if (code.scrollHeight <= maxH + TOLERANCE) return;
+
+        var lo = MIN_CODE_EM, hi = DEFAULT_CODE_EM, best = MIN_CODE_EM;
+        for (var i = 0; i < 10; i++) {
+          var mid = (lo + hi) / 2;
+          pre.style.fontSize = mid + 'em';
+          if (code.scrollHeight <= maxH + TOLERANCE) {
+            best = mid; lo = mid;
+          } else {
+            hi = mid;
+          }
+        }
+        pre.style.fontSize = best + 'em';
+      });
+    }
+
+    function fitSlide(slide) {
+      if (!slide) return;
+      setCodeBodyHeight(slide);
+      fitSlideText(slide);
+      setCodeBodyHeight(slide);
+      fitCodeBlocks(slide);
+      slide.dataset.fitted = '1';    // mark: never re-fit this slide
+    }
+
+    function currentSlide(event) {
+      if (event && event.currentSlide) return event.currentSlide;
+      return (typeof Reveal !== 'undefined' && Reveal.isReady()) ? Reveal.getCurrentSlide() : null;
+    }
+
+    function init() {
+      if (typeof Reveal === 'undefined') { setTimeout(init, 50); return; }
+      Reveal.on('ready', function (e) { fitSlide(currentSlide(e)); });
+      Reveal.on('slidechanged', function (e) { fitSlide(currentSlide(e)); });
+      // Fragment events: NEVER re-fit. Fragments only show/hide existing
+      // content (including code-line-numbers highlights and column outputs).
+      // Re-fitting causes font-size jumps.
+      if (Reveal.isReady()) fitSlide(Reveal.getCurrentSlide());
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  })();
+</script>

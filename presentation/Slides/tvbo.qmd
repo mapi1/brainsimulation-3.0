@@ -213,6 +213,22 @@ edges:
 net.plot_graph()
 ```
 
+## Network Database
+
+```{python}
+# | echo: true
+# | output-location: column
+# | fig-height: 200px
+
+sc = Network.from_db(
+  atlas="DesikanKilliany",
+  rec="avgMatrix",
+  )
+
+sc.plot_overview(log_weights=True)
+```
+
+
 <!-- {{< include Slides/tvbo-jansen1995-replication.qmd >}} -->
 
 

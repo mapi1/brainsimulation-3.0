@@ -24,6 +24,7 @@ format:
     embed-resources: true
     preload-iframes: true
     default-image-extension: svg
+    fig-dpi: 500
 
 author:
   - name: Marius Pille
