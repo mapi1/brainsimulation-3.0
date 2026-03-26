@@ -1,17 +1,8 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# GitLab CI — render Quarto presentation → deploy to GitLab Pages + gh-pages
+# GitLab CI — render Quarto presentation → deploy to GitLab Pages
 #
-# Two deployment targets:
-#   1. GitLab Pages  — artifacts-based (public/), served at your GitLab Pages URL
-#   2. gh-pages branch — force-pushed rendered HTML for GitHub Pages interop
-#
-# Required CI/CD variable (Settings → CI/CD → Variables):
-#   DEPLOY_TOKEN  — a project access token with "write_repository" scope
-#                   (or enable "Allow CI job token to push" in project settings
-#                    and use CI_JOB_TOKEN instead — see deploy-gh-pages script)
-#
-# Optional variable to skip Python re-execution when _freeze/ is committed:
-#   QUARTO_FREEZE  — set to "true" (default) to use frozen results if available
+# Deployment:
+#   GitLab Pages — artifacts-based (public/), served at your GitLab Pages URL
 # ─────────────────────────────────────────────────────────────────────────────
 
 stages:
@@ -81,57 +72,5 @@ pages:
   artifacts:
     paths:
       - public
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-
-# ── Job: deploy-gh-pages (push to gh-pages branch) ──────────────────────────
-# Creates / force-updates the gh-pages branch with only the rendered HTML,
-# making the repo compatible with GitHub Pages if mirrored to GitHub.
-#
-# Uses DEPLOY_TOKEN (preferred) or CI_JOB_TOKEN (requires project setting).
-deploy-gh-pages:
-  stage: deploy
-  needs:
-    - job: render
-      artifacts: true
-  script:
-    # ── Configure git identity ──────────────────────────────────────────────
-    - git config --global user.email "ci@gitlab"
-    - git config --global user.name "GitLab CI"
-
-    # ── Authenticate: prefer explicit DEPLOY_TOKEN, fall back to CI_JOB_TOKEN
-    - |
-      if [ -n "$DEPLOY_TOKEN" ]; then
-        PUSH_URL="https://oauth2:${DEPLOY_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
-      else
-        # Requires "Allow CI job token to push" enabled in project settings:
-        # Settings → CI/CD → Token Access → Allow CI job token to push
-        PUSH_URL="https://oauth2:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
-      fi
-      git remote set-url origin "$PUSH_URL"
-
-    # ── Build a clean gh-pages tree ─────────────────────────────────────────
-    - TMPDIR=$(mktemp -d)
-    - cp ${PRESENTATION_DIR}/${OUTPUT_HTML} "${TMPDIR}/index.html"
-
-    # Keep a minimal root redirect so bare domain / GitHub Pages root works
-    - |
-      cat > "${TMPDIR}/.nojekyll" << 'EOF'
-      EOF
-
-    # ── Orphan commit to gh-pages (no history bloat) ────────────────────────
-    - cd "$TMPDIR"
-    - git init
-    - git checkout --orphan gh-pages
-    - git add .
-    - |
-      git commit -m "ci: deploy presentation @ ${CI_COMMIT_SHORT_SHA} [skip ci]
-
-      Rendered from: ${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA}
-      Pipeline:      ${CI_PIPELINE_URL}"
-    - git remote add origin "$PUSH_URL"
-    - git push origin gh-pages --force
-
-    - echo "✓ gh-pages branch updated → ${CI_PROJECT_URL}/tree/gh-pages"
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
