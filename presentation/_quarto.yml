@@ -4,6 +4,10 @@ project:
   output-dir: ../public
   pre-render: ../setup.sh
 
+format:
+  revealjs:
+    favicon: ../tvboptim.ico
+
 jupyter: python3
 
 execute:
