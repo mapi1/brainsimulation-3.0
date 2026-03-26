@@ -43,13 +43,11 @@ variables:
 # ── Job: render ──────────────────────────────────────────────────────────────
 render:
   stage: render
-  image: python:${PYTHON_VERSION}-slim
   before_script:
     - *install_quarto
-    # Install uv for fast dependency resolution
-    - pip install -q uv
     # Core packages used in the presentation
     # Both are on PyPI; tvbo[all] pulls JAX, sympy, etc.
+    - pip install -q uv || pip3 install -q uv
     - uv pip install --system tvbo[all] bsplot
   script:
     - cd ${PRESENTATION_DIR}
@@ -69,7 +67,6 @@ render:
 # Served at: https://<namespace>.pages.<gitlab-host>/<project>/
 pages:
   stage: deploy
-  image: alpine:latest
   needs:
     - job: render
       artifacts: true
@@ -90,7 +87,6 @@ pages:
 # Uses DEPLOY_TOKEN (preferred) or CI_JOB_TOKEN (requires project setting).
 deploy-gh-pages:
   stage: deploy
-  image: alpine/git:latest
   needs:
     - job: render
       artifacts: true
