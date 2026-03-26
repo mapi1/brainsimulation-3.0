@@ -36,7 +36,7 @@ if os.path.exists(_CACHE):
     print("Loaded graph data from cache.")
 else:
     # Load tvbo DK connectivity
-    sc = Network.from_db(atlas="DesikanKilliany", rec="avgMatrix")[0]
+    sc = Network.from_db(atlas="DesikanKilliany", rec="avgMatrix")
     W = sc.matrix("weight")
 
     # Load surface geometry and parcellation
@@ -286,7 +286,7 @@ jx_net.cell(4).move(900, 1800)
 
 # --- Preload dTOR SC matrix and tractogram path ---
 _TCK = "/Users/leonmartin_bih/tools/bsplot/docs/data/dTOR_10K_sample_subsampled_10k.tck"
-_dtor_sc = np.log1p(Network.from_db(atlas="DesikanKilliany", rec="dTOR")[0].matrix("weight"))
+_dtor_sc = np.log1p(Network.from_db(atlas="DesikanKilliany", rec="dTOR").matrix("weight"))
 
 # --- Preload dynamics simulations (cached, 100ms window, interesting only) ---
 _DYN_CACHE = os.path.join(os.path.dirname(__file__), ".dynamics_cache.pkl")
@@ -488,5 +488,7 @@ for idx, (zn, color, seed, freqs) in enumerate(
     zip(zoom_nodes_lh, zoom_colors, zoom_seeds_lh, zoom_freqs)
 ):
     draw_inset(zn, color, seed, freqs, inset_left_lh, connector_side="right", idx=idx)
+
+fig.savefig("/Users/leonmartin_bih/projects/TVB-O/tvb-o-ptim/code/fig/tvbo-network-insets.png", dpi=500)
 
 plt.show()

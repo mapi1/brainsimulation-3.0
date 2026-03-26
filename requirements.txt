@@ -1,0 +1,3 @@
+# Python dependencies for Quarto rendering
+tvbo[all]
+bsplot

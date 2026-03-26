@@ -6,5 +6,7 @@ pyproject.toml
 hello.py
 /.quarto/
 /.claude/skills
-_freeze
+# _freeze/ is intentionally committed so CI can render without re-executing
+# Python code cells (quarto render uses freeze: auto from _quarto.yml).
+# Run `quarto render` locally and commit _freeze/ when code cells change.
 presentation/*.html

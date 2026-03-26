@@ -53,11 +53,15 @@ bibliography: bibliography.bib
 
 ## Classic TVB - Math
 
+<!-- $$
+f_d(S_i, \theta^d, C_i, I_i)
+$$ -->
+
+:::: {.columns}
+
+::: {.column}
 $$
-\begin{align*}
-dS_i &= \left[f_d(S_i, \theta^d, C_i, I_i) \right]dt + g(S_i, \theta^g)\, dW_i \\
-C_i &= f_c^{\text{post}}\Big(\sum_j A_{ij}\, f_c^{\text{pre}}(S_i, S_j(t-\tau_{ij}), \theta^c), S_i, \theta^c\Big)
-\end{align*} \\
+dS_i = \left[f_d(S_i, \theta^d, C_i, I_i) \right]dt + g(S_i, \theta^g)\, dW_i
 $$
 
 ::: {style="font-size: 0.55em;"}
@@ -70,7 +74,18 @@ $$
 - $I_i$ - external input (stimulation, driving signals)
 - $g$ - noise diffusion coefficient with parameters $\theta^g$
 - $dW_i$ - Wiener process (stochastic fluctuations)
+:::
 
+:::
+
+
+::: {.column}
+
+$$
+C_i = f_c^{\text{post}}\Big(\sum_j A_{ij}\, f_c^{\text{pre}}(S_i, S_j(t-\tau_{ij}), \theta^c), S_i, \theta^c\Big)
+$$
+
+::: {style="font-size: 0.55em;"}
 **Coupling**
 
 - $f_c^{\text{pre}}$ - pre-aggregation transformation
@@ -78,115 +93,20 @@ $$
 - $\tau_{ij}$ - transmission delay (tract length / conduction speed)
 - $f_c^{\text{post}}$ - post-aggregation transformation
 - $\theta^c$ - coupling parameters
+:::
 
 :::
 
+::::
 
 ## Specify Reproducible Simulation Experiments with:
 
 
 ![Knowledge Management for Digital Brain Twins [@Martin2025]](figures/tvbo_logo.png)
 
-## Basic Ideas and Concepts
 
-* separation model specification from code implementation (PDF for brain simulation)
-* One specification - multiple backends
+{{< include Slides/tvbo.qmd >}}
 
-
-
-## What's New
-- Discrete Models
-- PDEs
-- New Backends
-  - Jax
-  - tvboptim
-  - pyrates
-  - julia
-  - cuda
-  - neuroML
-  - neuroblox?
-  - tvb-cpp?
-  - jaxley?
-
-## Node Dynamics {auto-animate=true}
-
-
-:::: {.columns}
-
-::: {.column width="50%"}
-
-::: {.fragment fragment-index=1}
-
-```yaml
-name: PendulumSystem
-parameters:
-    c:
-        value: 0.001
-        unit: 1/ms
-        description:
-    omega0:
-        value: 0.01
-        unit: rad/ms
-    L:
-        value: 1.0
-        unit: m
-
-state_variables:
-    theta:
-        unit: rad
-        initial_value: 1.0
-        equation:
-            rhs: omega
-    omega:
-        unit: rad/ms
-        initial_value: 0.0
-        equation:
-            rhs: -c*omega - omega0**2 * sin(theta)
-```
-:::
-:::
-::: {.column width="50%"}
-
-::: {.fragment fragment-index=2}
-```python
-from tvbo import Dynamics
-pendulum = Dynamics.from_string(dynamics_yaml)
-pendulum.render('report')
-```
-:::
-
-
-::: {.fragment fragment-index=3}
-
-#### PendulumSystem
-
-
-##### State Equations
-$$
-\dot{\theta} = \omega
-$$
-$$
-\dot{\omega} = - c*\omega - \omega_{0}^{2}*\sin{\left(\theta \right)}
-$$
-
-##### Parameters
-
-| **Parameter** | **Value** | **Unit** | **Description** |
-|---------------|-----------|----------|-----------------|
-| $c$ | 0.001 | $\mathrm{ms}^{-1}$ | None |
-| $\omega_{0}$ | 0.01 | $\frac{\mathrm{rad}}{\mathrm{ms}}$ | None |
-| $L$ | 1.0 | $\mathrm{m}$ | None |
-:::
-
-
-:::
-
-::::
-
-
-<!-- {{< include Slides/tvbo.qmd >}} -->
-
-<!-- {{< include Slides/tvbo-jansen1995-replication.qmd >}} -->
 
 ## Run and Optimize models with:
 
