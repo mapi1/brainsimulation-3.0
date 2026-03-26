@@ -41,7 +41,7 @@ render:
     - uv pip install tvbo[all] bsplot jupyter-cache
   script:
     - source .venv/bin/activate
-    - quarto render
+    - cd presentation && quarto render
   artifacts:
     name: "presentation-html"
     paths:
@@ -60,9 +60,7 @@ pages:
     - job: render
       artifacts: true
   script:
-    # Move rendered presentation to root so it's served at /
-    - mv public/presentation/index.html public/index.html
-    - rm -rf public/presentation
+    - echo "Deploying to GitLab Pages"
   artifacts:
     paths:
       - public
