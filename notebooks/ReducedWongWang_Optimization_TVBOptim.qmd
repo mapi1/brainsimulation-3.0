@@ -676,7 +676,20 @@ plt.tight_layout()
 ```
 
 ```{python}
+import tempfile
+from pathlib import Path
 from tvbo import SimulationExperiment
+from tvbo import Network
+
+lobar8 = Network.from_db(
+    atlas="Lobar8",
+    rec="avgMatrix",
+)
+
+# Save lobar8 to a temp dir so the absolute path can be embedded in the YAML
+_tmp_dir = Path(tempfile.mkdtemp())
+lobar8.save(_tmp_dir)
+_lobar8_h5 = str(next(_tmp_dir.glob("*.h5")))
 
 yaml_definition = """
 id: 2
@@ -724,8 +737,8 @@ dynamics:
         FastLinearCoupling: {dimension: 1}
 
 network:
-    label: "Desikan-Killiany"
-    bids_dir: "../networks/bids/dk_average"
+    label: "Lobar8 (avgMatrix)"
+    data_file: __LOBAR8_H5__
     structural_measures: [streamlineCount, tractLength]
     observational_measures: [BoldCorrelation]
     transforms:
@@ -751,7 +764,7 @@ functions:
     temporal_average:
         source_code: "jnp.mean(data.reshape(-1, period_samples, *data.shape[1:]), axis=1)"
         arguments:
-            - {name: data}
+            - {name: data, value: ~}
             - {name: period_samples, value: 1}
 
     hrf_kernel:
@@ -767,8 +780,8 @@ functions:
     prepend_history:
         source_code: "jnp.concatenate([history[-kernel_samples:], data], axis=0)"
         arguments:
-            - {name: data}
-            - {name: history}
+            - {name: data, value: ~}
+            - {name: history, value: ~}
             - {name: kernel_samples, value: 5000}
 
     volterra_transform:
@@ -778,20 +791,20 @@ functions:
                 k_1: {value: 5.6}
                 V_0: {value: 0.02}
         arguments:
-            - {name: data}
+            - {name: data, value: ~}
 
     subsample_bold:
         source_code: "data[::step][:n_samples]"
         arguments:
-            - {name: data}
+            - {name: data, value: ~}
             - {name: step, value: 250}
             - {name: n_samples, value: 120}
 
     rmse:
         equation: {rhs: "sqrt(mean((x - y)**2))"}
         arguments:
-            - {name: x}
-            - {name: y}
+            - {name: x, value: ~}
+            - {name: y, value: ~}
 
     fc_corr:
         callable: {name: fc_corr, module: tvboptim.observations.observation}
@@ -907,7 +920,7 @@ execution:
     n_workers: 8
     precision: float64
     random_seed: 0
-"""
+""".replace("__LOBAR8_H5__", _lobar8_h5)
 
 exp = SimulationExperiment.from_string(yaml_definition)
 results = exp.run("tvboptim")
