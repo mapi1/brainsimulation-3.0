@@ -7,27 +7,23 @@ This tutorial demonstrates how to use TVB-Optim to fit functional connectivity (
 
 
 ```{python}
-import os
-import importlib
-import subprocess
+import os, importlib, subprocess, sys
 
 def _available(*packages):
     return all(importlib.util.find_spec(p) for p in packages)
 
-if _available("tvbo", "tvboptim"):
-    print("✓ tvbo and tvboptim already installed.")
-elif "google.colab" in str(getattr(get_ipython(), "extension_manager", "")):
-    print("Colab detected — installing...")
-    subprocess.check_call(["pip", "install", "-q", "jax==0.6.1"])
-    subprocess.check_call(["pip", "install", "-q", "--no-warn-conflicts", "tvbo", "tvboptim"])
-    print("✓ Done.")
-elif os.path.exists("/mnt/user"):
-    print("⚠ EBRAINS detected — running setup script...")
-    script = os.path.join(os.path.dirname(os.path.abspath("__file__")), "setup_tvbo_tvboptim_env.sh")
-    subprocess.check_call(["bash", script])
-    print("✓ Setup complete. Please select the 'Python (tvb-o-ptim)' kernel and restart.")
-else:
-    raise ImportError("tvbo and/or tvboptim not installed. Run: pip install tvbo tvboptim")
+if not _available("tvbo", "tvboptim"):
+    _devnull = open(os.devnull, "w")
+    if "google.colab" in str(getattr(get_ipython(), "extension_manager", "")):
+        subprocess.check_call(["pip", "install", "-q", "jax==0.6.1"], stdout=_devnull, stderr=_devnull)
+        subprocess.check_call(["pip", "install", "-q", "--no-warn-conflicts", "tvbo", "tvboptim"], stdout=_devnull, stderr=_devnull)
+    elif os.path.exists("/mnt/user"):
+        script = os.path.join(os.path.dirname(os.path.abspath("__file__")), "setup_tvbo_tvboptim_env.sh")
+        subprocess.check_call(["bash", script], stdout=_devnull, stderr=subprocess.STDOUT)
+        print("Setup complete. Select the 'Python (tvb-o-ptim)' kernel and restart.")
+    else:
+        raise ImportError("tvbo and/or tvboptim not installed. Run: pip install tvbo tvboptim")
+    _devnull.close()
 ```
 
 The workflow includes:

@@ -37,7 +37,7 @@ echo "      Venv created."
 
 # 5. Install packages + register kernel
 echo "[5/6] Installing ipykernel, tvbo, tvboptim..."
-uv pip install --python "$VENV/bin/python" ipykernel "owlready2<0.48" tvbo tvboptim
+uv pip install --python -U "$VENV/bin/python" ipykernel "owlready2<0.48" tvbo tvboptim
 echo "      Packages installed."
 
 echo "[6/6] Registering Jupyter kernel..."
@@ -61,8 +61,8 @@ echo "      Kernel registered."
 echo ""
 echo "=== Verifying installation... ==="
 "$VENV/bin/python" -c "import pathspec; print(f'  pathspec {pathspec.__version__} from {pathspec.__file__}')"
-"$VENV/bin/python" -c "import black; print(f'  black OK')"
-"$VENV/bin/python" -c "from tvbo import Dynamics; print('  tvbo OK')"
-"$VENV/bin/python" -c "import tvboptim; print('  tvboptim OK')"
+"$VENV/bin/python" -c "import black; print(f'  black {black.__version__} OK')"
+"$VENV/bin/python" -c "import tvbo; print(f'  tvbo {tvbo.__version__} OK')"
+"$VENV/bin/python" -c "import tvboptim; print(f'  tvboptim {tvboptim.__version__} OK')"
 echo ""
 echo "=== Done! Refresh JupyterLab and select the 'Python (tvb-o-ptim)' kernel. ==="
