@@ -37,7 +37,7 @@ echo "      Venv created."
 
 # 5. Install packages + register kernel
 echo "[5/6] Installing ipykernel, tvbo, tvboptim..."
-uv pip install --python -U "$VENV/bin/python" ipykernel "owlready2<0.48" tvbo tvboptim
+uv pip install -U --python "$VENV/bin/python" ipykernel "owlready2<0.48" tvbo tvboptim
 echo "      Packages installed."
 
 echo "[6/6] Registering Jupyter kernel..."
