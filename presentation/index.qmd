@@ -61,6 +61,7 @@ $$ -->
 :::: {.columns}
 
 ::: {.column}
+::: {.fragment fragment-index=0}
 $$
 dS_i = \left[f_d(S_i, \theta^d, C_i, I_i) \right]dt + g(S_i, \theta^g)\, dW_i
 $$
@@ -79,9 +80,12 @@ $$
 
 :::
 
+:::
+
 
 ::: {.column}
 
+::: {.fragment fragment-index=2}
 $$
 C_i = f_c^{\text{post}}\Big(\sum_j A_{ij}\, f_c^{\text{pre}}(S_i, S_j(t-\tau_{ij}), \theta^c), S_i, \theta^c\Big)
 $$
@@ -96,6 +100,7 @@ $$
 - $\theta^c$ - coupling parameters
 :::
 
+:::
 :::
 
 ::::
@@ -117,8 +122,14 @@ $$
 
 ## Biological Mechanistic Model-Discovery
 
+![](figures/Biological-UDE.png)
+
 ## Hands-On
 
 * Link:
+
+##
+
+{{< include ../notebooks/ReducedWongWang_Optimization_TVBOptim.qmd >}}
 
 ## References
