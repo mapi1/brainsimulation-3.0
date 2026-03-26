@@ -1,51 +1,68 @@
 #!/bin/bash
-# setup_tvbo_env.sh — Set up tvbo+tvboptim Jupyter kernel on EBRAINS
-# Usage: bash setup_tvbo_env.sh
+# setup_tvbo_tvboptim_env.sh — Set up tvbo+tvboptim Jupyter kernel on EBRAINS
+# Usage: bash setup_tvbo_tvboptim_env.sh
 
 set -e
 
-VENV="$HOME/tvbo-env"
+VENV="$HOME/tvboptim-env"
 LOG="$HOME/setup_tvbo_env.log"
+KERNEL_DIR="$HOME/.local/share/jupyter/kernels/tvboptim-env"
 
 exec > >(tee "$LOG") 2>&1
 
 echo "=== TVBO Environment Setup ==="
-echo "    Log: $LOG"
 
-# 1. Create isolated venv (no --system-site-packages to avoid spack conflicts)
-echo ""
-echo "[1/4] Creating venv at $VENV..."
-if [ -d "$VENV" ]; then
-    echo "      Venv already exists. Delete it first to recreate: rm -rf $VENV"
-else
-    python3 -m venv "$VENV"
-    echo "      Venv created."
-fi
+# 1. Install uv (needs spack pip, so do this BEFORE unsetting PYTHONPATH)
+echo "[1/6] Installing uv..."
+pip install -q --user uv
+export PATH="$HOME/.local/bin:$PATH"
+echo "      uv: $(uv --version)"
 
-# 2. Upgrade pip (EBRAINS ships pip 23.0 which is extremely slow)
-echo ""
-echo "[2/4] Upgrading pip..."
-"$VENV/bin/python" -m pip install --upgrade pip
-echo "      pip upgraded: $("$VENV/bin/pip" --version)"
+# 2. Neutralize spack — PYTHONPATH injects spack's 3.11 packages into all Pythons
+echo "[2/6] Clearing spack PYTHONPATH..."
+SPACK_PYTHONPATH="$PYTHONPATH"
+unset PYTHONPATH
+echo "      PYTHONPATH cleared (was: ${SPACK_PYTHONPATH:-(empty)})"
 
-# 3. Install packages (verbose so you can see progress)
-echo ""
-echo "[3/4] Installing tvbo, tvboptim, ipykernel..."
-"$VENV/bin/pip" install \
-    "owlready2<0.48" \
-    tvbo \
-    tvboptim \
-    ipykernel
+# 3. Install standalone Python (avoids spack contamination)
+echo "[3/6] Installing standalone Python 3.12..."
+uv python install 3.12
+echo "      Python installed."
+
+# 4. Create venv with standalone Python (remove existing)
+echo "[4/6] Creating venv at $VENV..."
+rm -rf "$VENV"
+uv venv --python-preference only-managed --python 3.12 "$VENV"
+echo "      Venv created."
+
+# 5. Install packages + register kernel
+echo "[5/6] Installing ipykernel, tvbo, tvboptim..."
+uv pip install -U --python "$VENV/bin/python" ipykernel "owlready2<0.48" tvbo tvboptim
 echo "      Packages installed."
 
-# 4. Register Jupyter kernel (user-level)
-echo ""
-echo "[4/4] Registering Jupyter kernel..."
-"$VENV/bin/python" -m ipykernel install \
-    --user \
-    --name tvbo-env \
-    --display-name "Python (tvbo)"
+echo "[6/6] Registering Jupyter kernel..."
+"$VENV/bin/python" -m ipykernel install --user \
+    --name tvboptim-env \
+    --display-name "Python (tvb-o-ptim)"
+
+# Patch kernel.json to clear PYTHONPATH at runtime (prevents spack leaking into kernel)
+"$VENV/bin/python" -c "
+import json, pathlib
+kf = pathlib.Path('$KERNEL_DIR/kernel.json')
+k = json.loads(kf.read_text())
+k.setdefault('env', {})
+k['env']['PYTHONPATH'] = ''
+k['env']['PYTHONNOUSERSITE'] = '1'
+kf.write_text(json.dumps(k, indent=1))
+print('      kernel.json patched:', kf)
+"
 echo "      Kernel registered."
 
 echo ""
-echo "=== Done! Refresh JupyterLab and select the 'Python (tvbo)' kernel. ==="
+echo "=== Verifying installation... ==="
+"$VENV/bin/python" -c "import pathspec; print(f'  pathspec {pathspec.__version__} from {pathspec.__file__}')"
+"$VENV/bin/python" -c "import black; print(f'  black {black.__version__} OK')"
+"$VENV/bin/python" -c "import tvbo; print(f'  tvbo {tvbo.__version__} OK')"
+"$VENV/bin/python" -c "import tvboptim; print(f'  tvboptim {tvboptim.__version__} OK')"
+echo ""
+echo "=== Done! Refresh JupyterLab and select the 'Python (tvb-o-ptim)' kernel. ==="
