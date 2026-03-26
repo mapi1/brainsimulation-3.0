@@ -12,10 +12,6 @@ stages:
 variables:
   QUARTO_VERSION: "1.7.24"
   PYTHON_VERSION: "3.13"
-  # Point at the rendered presentation inside the repo
-  PRESENTATION_DIR: "presentation"
-  PRESENTATION_QMD: "index.qmd"
-  OUTPUT_HTML: "presentation.html"
 
 # ── Shared setup template (macOS shell executor) ─────────────────────────────
 .install_quarto: &install_quarto
@@ -45,13 +41,11 @@ render:
     - uv pip install tvbo[all] bsplot jupyter-cache
   script:
     - source .venv/bin/activate
-    - cd ${PRESENTATION_DIR}
-    - quarto render ${PRESENTATION_QMD} --output ${OUTPUT_HTML}
-    - ls -lh ${OUTPUT_HTML}
+    - quarto render
   artifacts:
     name: "presentation-html"
     paths:
-      - ${PRESENTATION_DIR}/${OUTPUT_HTML}
+      - public/
     expire_in: 7 days
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
@@ -66,9 +60,7 @@ pages:
     - job: render
       artifacts: true
   script:
-    - mkdir -p public
-    - cp ${PRESENTATION_DIR}/${OUTPUT_HTML} public/index.html
-    - echo "Deployed to GitLab Pages → public/index.html"
+    - echo "Deploying to GitLab Pages"
   artifacts:
     paths:
       - public
