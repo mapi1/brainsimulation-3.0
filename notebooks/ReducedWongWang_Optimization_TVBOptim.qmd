@@ -162,7 +162,7 @@ We prepare the network for simulation and run an initial transient to reach a qu
 
 ```{python}
 # Prepare simulation: compile model and initialize state
-t1 = 100_000  # Total simulation duration (ms) - 2 minutes
+t1 = 180_000  # Total simulation duration (ms) - 2 minutes
 dt = 4.0      # Integration timestep (ms)
 solver = BoundedSolver(Heun(), low=0.0, high=1.0)  # Bound S to [0, 1]
 model, state = prepare(network, solver, t1=t1, dt=dt)
@@ -666,10 +666,10 @@ plt.show()
 
 ```{python}
 fig, axs = plt.subplots(1, 2, figsize=(12, 3))
-colors = ["steelblue" if "LH" in l else "tomato" for l in dk.node_labels]
+colors = ["steelblue" if "LH" in l else "tomato" for l in lobar8.node_labels]
 for ax, (vals, name) in zip(axs, [(w_fitted, "w"), (I_o_fitted, "I_o")]):
-    ax.bar(dk.node_labels, vals, color=colors)
-    ax.set_xticklabels(dk.node_labels, rotation=45, ha="right", fontsize=8)
+    ax.bar(lobar8.node_labels, vals, color=colors)
+    ax.set_xticklabels(lobar8.node_labels, rotation=45, ha="right", fontsize=8)
     ax.set_ylabel(name)
     ax.axhline(vals.mean(), color="k", linestyle="--", linewidth=1)
 plt.tight_layout()
