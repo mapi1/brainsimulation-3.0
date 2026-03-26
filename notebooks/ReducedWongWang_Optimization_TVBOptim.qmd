@@ -139,17 +139,20 @@ dynamics.state_variables["S"].noise = Noise(
 
 We combine the RWW dynamics with structural connectivity to create a whole-brain network model.
 
+### Add Dynamics
 ```{python}
 lobar8.dynamics['ReducedWongWangTvboptim'] = dynamics
-lobar8.coupling['instant'] = Coupling.from_db("FastLinearCoupling")
-network = lobar8.execute('tvboptim')
 ```
 
+## Add Coupling
 ```{python}
+from tvbo import Coupling
+lobar8.coupling['instant'] = Coupling.from_db("FastLinearCoupling")
 lobar8.coupling['instant'].delayed
 ```
 
 ```{python}
+network = lobar8.execute('tvboptim')
 network.graph
 ```
 
