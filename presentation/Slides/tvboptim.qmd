@@ -277,7 +277,100 @@ final_state, opt_data = opt.run(optimized_state, max_steps=500)
 :::
 :::
 ::::
+
 ## Going Beyond: Hybrid Brain Network Models
 
-* UDEs
-* Bayesian Inference (SBI vs. HMC)
+Universal Differential Equations:
+
+:::{.r-stack}
+
+:::{.fragment .fade-out fragment-index=1}
+```{dot}
+//| fig-width: 9
+digraph JansenRit {
+    rankdir=LR
+    splines=true
+    bgcolor="transparent"
+    node [fontname="Helvetica" fontsize=14 style="filled,rounded" shape=box penwidth=2]
+    edge [fontname="Helvetica" fontsize=11 penwidth=1.5]
+
+    mu   [label="μ" fillcolor="#fee838" fontcolor="#333333" color="#c9b82a"]
+    coup [label="coupling" fillcolor="#fee838" fontcolor="#333333" color="#c9b82a"]
+
+    P [label=<Pyramidal<br/><i>y<sub>0</sub> , y<sub>3</sub></i>> fillcolor="#00224e" fontcolor="white" color="#001633"]
+    E [label=<Excitatory<br/><i>y<sub>1</sub> , y<sub>4</sub></i>> fillcolor="#357ba2" fontcolor="white" color="#245a7a"]
+    I [label=<Inhibitory<br/><i>y<sub>2</sub> , y<sub>5</sub></i>> fillcolor="#7db866" fontcolor="white" color="#5a8a49"]
+
+    mu   -> E
+    coup -> E
+    P -> E [label=<a<sub>2</sub>J &middot; S(a<sub>1</sub>Jy<sub>0</sub>)>]
+    P -> I [label=<a<sub>4</sub>J &middot; S(a<sub>3</sub>Jy<sub>0</sub>)>]
+    E -> P [label=<+S(y<sub>1</sub>&minus;y<sub>2</sub>)>]
+    I -> P [label=<&minus;S(y<sub>1</sub>&minus;y<sub>2</sub>)>]
+}
+```
+:::
+
+:::{.fragment .fade-in-then-out fragment-index=1}
+```{dot}
+//| fig-width: 9
+digraph JansenRit {
+    rankdir=LR
+    splines=true
+    bgcolor="transparent"
+    node [fontname="Helvetica" fontsize=14 style="filled,rounded" shape=box penwidth=2]
+    edge [fontname="Helvetica" fontsize=11 penwidth=1.5]
+
+    mu   [label="μ" fillcolor="#fee838" fontcolor="#333333" color="#c9b82a"]
+    coup [label="coupling" fillcolor="#fee838" fontcolor="#333333" color="#c9b82a"]
+    stim [label=<&#9889; Stimulus> fillcolor="#e07b39" fontcolor="white" color="#b8612d"]
+    unk  [label=<&#10067;> fillcolor="#888888" fontcolor="white" color="#666666" fontsize=24]
+
+    P [label=<Pyramidal<br/><i>y<sub>0</sub> , y<sub>3</sub></i>> fillcolor="#00224e" fontcolor="white" color="#001633"]
+    E [label=<Excitatory<br/><i>y<sub>1</sub> , y<sub>4</sub></i>> fillcolor="#357ba2" fontcolor="white" color="#245a7a"]
+    I [label=<Inhibitory<br/><i>y<sub>2</sub> , y<sub>5</sub></i>> fillcolor="#7db866" fontcolor="white" color="#5a8a49"]
+
+    stim -> unk
+    unk  -> P [style=dashed label=<???>]
+    mu   -> E
+    coup -> E
+    P -> E [label=<a<sub>2</sub>J &middot; S(a<sub>1</sub>Jy<sub>0</sub>)>]
+    P -> I [label=<a<sub>4</sub>J &middot; S(a<sub>3</sub>Jy<sub>0</sub>)>]
+    E -> P [label=<+S(y<sub>1</sub>&minus;y<sub>2</sub>)>]
+    I -> P [label=<&minus;S(y<sub>1</sub>&minus;y<sub>2</sub>)>]
+}
+```
+:::
+
+:::{.fragment .fade-in fragment-index=2}
+```{dot}
+//| fig-width: 9
+digraph JansenRit {
+    rankdir=LR
+    splines=true
+    bgcolor="transparent"
+    node [fontname="Helvetica" fontsize=14 style="filled,rounded" shape=box penwidth=2]
+    edge [fontname="Helvetica" fontsize=11 penwidth=1.5]
+
+    mu   [label="μ" fillcolor="#fee838" fontcolor="#333333" color="#c9b82a"]
+    coup [label="coupling" fillcolor="#fee838" fontcolor="#333333" color="#c9b82a"]
+    stim [label=<&#9889; Stimulus> fillcolor="#e07b39" fontcolor="white" color="#b8612d"]
+    nn   [label=<Neural Network<br/><i>f<sub>&theta;</sub>(x)</i>> fillcolor="#9b59b6" fontcolor="white" color="#7d3c98" fontsize=13]
+
+    P [label=<Pyramidal<br/><i>y<sub>0</sub> , y<sub>3</sub></i>> fillcolor="#00224e" fontcolor="white" color="#001633"]
+    E [label=<Excitatory<br/><i>y<sub>1</sub> , y<sub>4</sub></i>> fillcolor="#357ba2" fontcolor="white" color="#245a7a"]
+    I [label=<Inhibitory<br/><i>y<sub>2</sub> , y<sub>5</sub></i>> fillcolor="#7db866" fontcolor="white" color="#5a8a49"]
+
+    stim -> nn
+    nn   -> P [label=<learned>]
+    mu   -> E
+    coup -> E
+    P -> E [label=<a<sub>2</sub>J &middot; S(a<sub>1</sub>Jy<sub>0</sub>)>]
+    P -> I [label=<a<sub>4</sub>J &middot; S(a<sub>3</sub>Jy<sub>0</sub>)>]
+    E -> P [label=<+S(y<sub>1</sub>&minus;y<sub>2</sub>)>]
+    I -> P [label=<&minus;S(y<sub>1</sub>&minus;y<sub>2</sub>)>]
+}
+```
+:::
+
+:::
