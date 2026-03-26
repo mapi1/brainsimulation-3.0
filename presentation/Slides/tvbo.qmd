@@ -30,6 +30,10 @@
   - *jaxley*
 - Edge Dynamics
 
+## TVB-O GUI
+
+
+
 ## Specify Dynamical System {auto-animate=true}
 
 :::: {.columns}
@@ -161,6 +165,53 @@ SimulationExperiment(
 :::
 ::::
 
+
+## Specify Network
+
+```{python}
+#| code-line-numbers: "1-4|6-9|11-13|14-16|17-19|"
+#| echo: true
+#| output-location: column
+
+from tvbo import Network
+
+net = Network.from_string("""
+label: Visual Pathway
+
+nodes:
+  - {id: 0, label: V1}
+  - {id: 1, label: V2}
+  - {id: 2, label: MT}
+
+edges:
+  - source: 0
+    target: 1
+    parameters:
+      weight:
+        value: 0.7
+      distance:
+        value: 25
+        unit: mm
+  - source: 1
+    target: 2
+    parameters:
+      weight:
+        value: 0.4
+      distance:
+        value: 40
+        unit: mm
+  - source: 0
+    target: 2
+    parameters:
+      weight:
+        value: 0.2
+      distance:
+        value: 60
+        unit: mm
+""")
+
+net.plot_graph()
+```
 
 <!-- {{< include Slides/tvbo-jansen1995-replication.qmd >}} -->
 

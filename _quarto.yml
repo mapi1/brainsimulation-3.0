@@ -1,2 +1,12 @@
+project:
+  render:
+    - presentation/index.qmd
+  output-dir: public
+  pre-render: ./setup.sh
+
+jupyter: python3
+
 execute:
-  freeze: false
+  freeze: auto
+
+cache: true
