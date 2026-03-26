@@ -23,7 +23,7 @@ variables:
   PYTHON_VERSION: "3.13"
   # Point at the rendered presentation inside the repo
   PRESENTATION_DIR: "presentation"
-  PRESENTATION_QMD: "presentation.qmd"
+  PRESENTATION_QMD: "index.qmd"
   OUTPUT_HTML: "presentation.html"
 
 # ── Shared setup template (macOS shell executor) ─────────────────────────────
