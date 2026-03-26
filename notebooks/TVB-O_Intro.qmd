@@ -18,24 +18,27 @@ parameters:
     c:
         value: 0.001
         unit: 1/ms
+        description: damping coefficient
     omega0:
         value: 0.01
         unit: rad/ms
+        description: natural frequency
     L:
         value: 1.0
         unit: m
+        description: rod length
 
 state_variables:
     theta:
         unit: rad
         initial_value: 1.0
-        equation:
-            rhs: omega
+        equation: 
+          rhs: omega
     omega:
         unit: rad/ms
         initial_value: 0.0
-        equation:
-            rhs: -c*omega - omega0**2 * sin(theta)
+        equation: 
+          rhs: -c*omega - omega0**2 * sin(theta)
 """
 
 pendulum = SimulationExperiment(
@@ -43,6 +46,12 @@ pendulum = SimulationExperiment(
 )
 results = pendulum.run(duration=5_000)
 results
+```
+
+```{python}
+dynamics=Dynamics.from_string(dynamics_yaml)
+
+print(dynamics.render('report'))
 ```
 
 ```{python}
@@ -83,7 +92,6 @@ res2.integration.sel(variable=["x", "y"]).plot()
 
 ```{python}
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 from matplotlib import animation
 from IPython.display import HTML
 import numpy as np
@@ -91,79 +99,55 @@ import numpy as np
 dt = pendulum.integration.step_size
 skip_frames = max(1, int(1000 / 20 / dt))
 
-t = res2.integration.time.values
-theta = res2.integration.data.sel(variable="theta").values.squeeze()
-omega = res2.integration.data.sel(variable="omega").values.squeeze()
+t = np.array(res2.integration.time)
 x = res2.integration.data.sel(variable="x").values.squeeze()
 y = res2.integration.data.sel(variable="y").values.squeeze()
+theta = res2.integration.data.sel(variable="theta").values.squeeze()
+omega = res2.integration.data.sel(variable="omega").values.squeeze()
 
-frames = range(0, len(t), skip_frames)
+frame_indices = list(range(0, len(t), skip_frames))
 
-fig = plt.figure(figsize=(10, 6))
-gs = gridspec.GridSpec(2, 2, height_ratios=[1, 1.4], hspace=0.45, wspace=0.35)
+fig, (ax_ts, ax_pend) = plt.subplots(2, 1, figsize=(7, 8), layout="compressed")
 
-# --- row 0: timeseries ---
-ax_theta = fig.add_subplot(gs[0, 0])
-ax_omega = fig.add_subplot(gs[0, 1])
+# --- timeseries (θ and ω) ---
+ax_ts.set_xlim(t[0], t[-1])
+ax_ts.set_ylim(min(theta.min(), omega.min()) - 0.1, max(theta.max(), omega.max()) + 0.1)
+ax_ts.set_xlabel("t (ms)")
+ax_ts.set_title("θ, ω")
+(line_theta,) = ax_ts.plot([], [], lw=1, label="θ (rad)")
+(line_omega,) = ax_ts.plot([], [], lw=1, label="ω (rad/ms)")
+ax_ts.legend(loc="upper right")
 
-ax_theta.set_xlim(t[0], t[-1])
-ax_theta.set_ylim(theta.min() - 0.1, theta.max() + 0.1)
-ax_theta.set_xlabel("t (ms)")
-ax_theta.set_ylabel(r"$\theta$ (rad)")
-ax_theta.set_title(r"$\theta(t)$")
-
-ax_omega.set_xlim(t[0], t[-1])
-ax_omega.set_ylim(omega.min() - 0.01, omega.max() + 0.01)
-ax_omega.set_xlabel("t (ms)")
-ax_omega.set_ylabel(r"$\omega$ (rad/ms)")
-ax_omega.set_title(r"$\omega(t)$")
-
-(line_theta,) = ax_theta.plot([], [], lw=1.5, color="steelblue")
-(dot_theta,) = ax_theta.plot([], [], "o", color="steelblue", ms=5)
-(line_omega,) = ax_omega.plot([], [], lw=1.5, color="darkorange")
-(dot_omega,) = ax_omega.plot([], [], "o", color="darkorange", ms=5)
-
-# --- row 1: pendulum ---
-ax_pend = fig.add_subplot(gs[1, :])
-L = float(pendulum.dynamics.parameters["L"].value)
-ax_pend.set_xlim(-L * 1.3, L * 1.3)
-ax_pend.set_ylim(-L * 1.3, L * 0.3)
+# --- pendulum ---
+ax_pend.set_xlim(-1.5, 1.5)
+ax_pend.set_ylim(-1.5, 0.5)
 ax_pend.set_aspect("equal")
 ax_pend.set_xlabel("x (m)")
 ax_pend.set_ylabel("y (m)")
-ax_pend.set_title("Pendulum")
-ax_pend.plot(0, 0, "k+", ms=10, mew=2)  # pivot
-
-(rod,) = ax_pend.plot([], [], "o-", color="gray", lw=2)
-(trail,) = ax_pend.plot([], [], "-", color="gray", lw=0.8, alpha=0.4)
-trail_len = 200
-
+(pend_line,) = ax_pend.plot([], [], "o-", lw=2, ms=8)
 
 def animate(i):
-    ti = list(frames)[i]
-    # timeseries up to current frame
-    line_theta.set_data(t[:ti], theta[:ti])
-    dot_theta.set_data([t[ti]], [theta[ti]])
-    line_omega.set_data(t[:ti], omega[:ti])
-    dot_omega.set_data([t[ti]], [omega[ti]])
-    # pendulum rod + bob
-    rod.set_data([0, x[ti]], [0, y[ti]])
-    # trail
-    start = max(0, ti - trail_len)
-    trail.set_data(x[start:ti], y[start:ti])
-    return line_theta, dot_theta, line_omega, dot_omega, rod, trail
+    idx = frame_indices[i]
+    line_theta.set_data(t[: idx + 1], theta[: idx + 1])
+    line_omega.set_data(t[: idx + 1], omega[: idx + 1])
+    pend_line.set_data([0, x[idx]], [0, y[idx]])
+    return line_theta, line_omega, pend_line
 
 
 ani = animation.FuncAnimation(
     fig,
     animate,
-    frames=len(frames),
+    frames=len(frame_indices),
     interval=dt * skip_frames,
     blit=True,
     repeat=True,
 )
 plt.close()
 HTML(ani.to_jshtml())
+```
+
+```{python}
+ani.save('/Users/leonmartin_bih/projects/TVB-O/tvb-o-ptim/notebooks/output/pendulum.gif', dpi=300)
 ```
 
 ### Dynamics Database
@@ -293,7 +277,7 @@ res.integration.time
 ```{python}
 ani = res.integration.sel(variable='V').animate()
 
-ani.save("_ouput/3Node_G2d.gif")
+# ani.save("_ouput/3Node_G2d.gif")
 ```
 
 ![]("_ouput/3Node_G2d.gif")
@@ -309,5 +293,4 @@ res.integration.sel(variable='V').shape
 ```{python}
 res.source.integration.step_size
 ```
-
 

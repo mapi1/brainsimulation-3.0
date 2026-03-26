@@ -220,12 +220,12 @@ net.plot_graph()
 # | output-location: column
 # | fig-height: 200px
 
-sc = Network.from_db(
+dk = Network.from_db(
   atlas="DesikanKilliany",
   rec="avgMatrix",
   )
 
-sc.plot_overview(log_weights=True)
+dk.plot_overview(log_weights=True)
 ```
 
 
