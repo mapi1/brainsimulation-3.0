@@ -26,15 +26,18 @@ variables:
   PRESENTATION_QMD: "presentation.qmd"
   OUTPUT_HTML: "presentation.html"
 
-# ── Shared setup template ────────────────────────────────────────────────────
+# ── Shared setup template (macOS shell executor) ─────────────────────────────
 .install_quarto: &install_quarto
-  - apt-get update -qq && apt-get install -y -qq wget curl git ca-certificates 2>/dev/null
   - |
-    ARCH=$(dpkg --print-architecture)
-    URL="https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${ARCH}.deb"
-    wget -q "$URL" -O quarto.deb
-    dpkg -i quarto.deb
-    rm quarto.deb
+    if command -v quarto &>/dev/null && [[ "$(quarto --version)" == "${QUARTO_VERSION}" ]]; then
+      echo "Quarto ${QUARTO_VERSION} already installed"
+    else
+      ARCH=$(uname -m)
+      URL="https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-macos.pkg"
+      curl -fsSL "$URL" -o /tmp/quarto.pkg
+      sudo installer -pkg /tmp/quarto.pkg -target /
+      rm /tmp/quarto.pkg
+    fi
   - quarto check install
 
 # ── Job: render ──────────────────────────────────────────────────────────────
