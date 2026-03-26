@@ -53,6 +53,7 @@ render:
     - source .venv/bin/activate
     - uv pip install tvbo[all] bsplot
   script:
+    - source .venv/bin/activate
     - cd ${PRESENTATION_DIR}
     - quarto render ${PRESENTATION_QMD} --output ${OUTPUT_HTML}
     - ls -lh ${OUTPUT_HTML}
