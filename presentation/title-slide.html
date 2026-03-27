@@ -1,31 +1,23 @@
-<section id="$idprefix$title-slide" $for(title-slide-attributes/pairs)$ $it.key$="$it.value$" $endfor$ class="quarto-title-block center">
-  <div class="title-bg-media" aria-hidden="true">
-    <img src="figures/Titleslide/brain_network.png" alt="" class="title-bg-image title-bg-image-left" />
-    <img src="figures/Titleslide/smiley_network_overview.png" alt="" class="title-bg-image title-bg-image-right" />
-  </div>
-
-  <div class="title-content">
-    $if(title)$<h1 class="title">$title$</h1>$endif$
-    $if(subtitle)$<p class="subtitle">$subtitle$</p>$endif$
-
-    $if(by-author)$
-    <div class="quarto-title-authors">
-      $for(by-author)$
-      <div class="quarto-title-author">
-        <div class="quarto-title-author-name">
-          $if(by-author.name.literal)$$by-author.name.literal$$else$$by-author.name$$endif$
-        </div>
-        $if(by-author.email)$
-        <div class="quarto-title-author-email">
-          <a href="mailto:$by-author.email$">$by-author.email$</a>
-        </div>
-        $endif$
-      </div>
-      $endfor$
+<section id="$idprefix$title-slide" $for(title-slide-attributes/pairs)$ $it.key$="$it.value$" $endfor$
+    class="quarto-title-block">
+    <div class="title-bg-media" aria-hidden="true">
+        <img src="figures/Titleslide/background.png" alt="" class="title-bg-image" />
     </div>
+
+    <h1 class="title">$title$</h1>
+    $if(subtitle)$
+    <p class="subtitle">$subtitle$</p>
     $endif$
 
-    $if(date)$<p class="date">$date$</p>$endif$
-  </div>
+    <div style="font-size: calc(1rem + 0.2vw);">
+        $for(by-author)$
+        <span>
+            $if(by-author.attributes.corresponding)$<strong>$endif$$if(by-author.name.literal)$$by-author.name.literal$$endif$$if(by-author.attributes.corresponding)$</strong>$endif$,
+        </span>
+        $endfor$
+    </div>
 
+    $if(date)$
+    <p class="date">$date$</p>
+    $endif$
 </section>
