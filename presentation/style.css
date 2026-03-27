@@ -441,6 +441,11 @@ html[data-theme="dark"] #title-slide .subtitle {
 }
 
 
+/* Vertically center inline badge images with list item text */
+.reveal ul li img, .reveal ol li img {
+    vertical-align: middle;
+}
+
 .math.display .MathJax {
     font-size: 70% !important;
     /* color: #b22222; */

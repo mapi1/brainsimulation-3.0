@@ -282,7 +282,7 @@ final_state, opt_data = opt.run(optimized_state, max_steps=500)
 
 ## Going Beyond: Hybrid Brain Network Models
 
-Universal Differential Equations:
+Universal Differential Equations [@UDE2021]:
 
 :::{.r-stack}
 
