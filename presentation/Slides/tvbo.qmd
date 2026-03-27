@@ -229,6 +229,7 @@ print("</div>")
 
 ::: {.fragment fragment-index=1}
 
+
 ```yaml
 name: PendulumSystem
 parameters:
