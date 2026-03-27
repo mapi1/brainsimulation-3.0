@@ -62,8 +62,9 @@ n_frames = ts.data.sizes["time"]
 vmax = float(ts.data.max())
 norm = PowerNorm(gamma=0.3, vmin=0, vmax=vmax)
 
-fig, ax = plt.subplots(1, 1, figsize=(4, 4))
-fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
+fig, ax = plt.subplots(1, 1, figsize=(4, 4.5))
+fig.subplots_adjust(left=0, right=1, top=0.9, bottom=0)
+fig.suptitle(r"$\frac{\partial u}{\partial t} = D \, \nabla^2 u$", fontsize=18, y=0.95)
 ax.axis("off")
 
 def update(frame):
