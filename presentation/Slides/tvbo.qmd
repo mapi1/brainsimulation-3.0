@@ -258,6 +258,7 @@ state_variables:
 ```
 :::
 :::
+
 ::: {.column width="50%"}
 
 ::: {.fragment fragment-index=2}
@@ -302,9 +303,22 @@ $$
 ::: {.column width="50%"}
 
 ```python
-from tvbo import Dynamics
-pendulum = Dynamics.from_string(dynamics_yaml)
-pendulum.render('tvboptim')
+from tvbo.datamodel.schema import DerivedVariable
+
+pendulum.dynamics.derived_variables["x"] = DerivedVariable(
+    name="x",
+    equation={"rhs": "L * sin(theta)"},
+    unit="m",
+    description="X coordinate of the pendulum bob",
+)
+pendulum.dynamics.derived_variables["y"] = DerivedVariable(
+    name="y",
+    equation={"rhs": "-L * cos(theta)"},
+    unit="m",
+    description="Y coordinate of the pendulum bob",
+)
+
+pendulum.render('jax')
 ```
 
 ::: {.fragment fragment-index=2}
@@ -323,6 +337,10 @@ def dfun(current_state, t, cX, _p):
     theta = current_state[0]
     omega = current_state[1]
 
+    # Derived variables
+    x = L * jnp.sin(theta)
+    y = -L * jnp.cos(theta)
+
     # Derivatives
     dtheta_dt = omega
     domega_dt = -c * omega - omega0**2 * jnp.sin(theta)
@@ -330,6 +348,7 @@ def dfun(current_state, t, cX, _p):
     derivatives = jnp.array([dtheta_dt, domega_dt])
 
     return derivatives
+
 ```
 :::
 
