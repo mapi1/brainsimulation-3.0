@@ -417,12 +417,10 @@ dk.plot_overview(log_weights=True)
 
 ## Full Experiments - Jansen & Rit (1995): Fig. 11 VEP delayed columns {.smaller}
 
-[@Jansen1995]
-
 :::: {.columns}
 
 ::: {.column width="30%"}
-**Original**
+**Original** [@Jansen1995]
 
 ![](figures/jansen1995/original/fig_11.png)
 :::
