@@ -1,6 +1,6 @@
 ---
 title: Brain Simulation 3.0
-subtitle: Introducing simple, fast, and reproducible workflows with `TVB-O` & `TVB-Optim`
+subtitle: Introducing simple, fast, and reproducible workflows with </br> `TVB-O` & `TVB-Optim`
 
 format:
   clean-revealjs:
