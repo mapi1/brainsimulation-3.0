@@ -300,37 +300,26 @@ exec = ParallelExecution(loss, grid, n_pmap=8)
 # Alternative: Sequential execution
 # exec = SequentialExecution(loss, grid)
 exploration_results = exec.run()
+df_exploration = exploration_results.to_dataframe()
+df_exploration.head()
 ```
 
 ```{python}
+pivot = df_exploration.pivot_table(index='dynamics.w', columns='coupling.instant.G', values='value')
 
-# Prepare data for visualization
-pc = grid.collect()
-G_vals = pc.coupling.instant.G.flatten()
-w_vals = pc.dynamics.w.flatten()
-
-# Get parameter ranges
-G_min, G_max = min(G_vals), max(G_vals)
-w_min, w_max = min(w_vals), max(w_vals)
-
-# Create figure and axis
 fig, ax = plt.subplots(figsize=(8.1, 4.05))
+im = ax.imshow(pivot.values,
+               cmap='cividis_r',
+               extent=[pivot.columns.min(), pivot.columns.max(),
+                       pivot.index.min(), pivot.index.max()],
+               origin='lower',
+               aspect='auto',
+               interpolation='hamming')
 
-# Create the heatmap
-im = ax.imshow(jnp.stack(exploration_results).reshape(n, n).T,
-              cmap='cividis_r',
-              extent=[G_min, G_max, w_min, w_max],
-              origin='lower',
-              aspect='auto',
-              interpolation='hamming')
-
-# Add colorbar and labels
-cbar = plt.colorbar(im, label="Loss (RMSE)")
-# cbar = plt.colorbar(im, label="Loss (Fc Correlation)")
+plt.colorbar(im, label="Loss (RMSE)")
 ax.set_xlabel('Global Coupling (G)')
 ax.set_ylabel('Excitatory Recurrence (w)')
 ax.set_title("Parameter Exploration")
-
 plt.tight_layout()
 ```
 
@@ -368,28 +357,16 @@ cb = MultiCallback([
 ])
 
 opt = OptaxOptimizer(loss, optax.adam(0.01), callback=cb)
-fitted_state, fitting_data = opt.run(state_opt, max_steps=200)
+fitted_state, fitting_data = opt.run(state_opt, max_steps=100)
 fitted_state = collect_parameters(fitted_state)
 ```
 
 ```{python}
-
-# Prepare data for visualization
-pc = grid.collect()
-G_vals = pc.coupling.instant.G
-w_vals = pc.dynamics.w
-
-# Get parameter ranges
-G_min, G_max = min(G_vals), max(G_vals)
-w_min, w_max = min(w_vals), max(w_vals)
-
-# Create figure and axis
 fig, ax = plt.subplots(figsize=(8.1, 4.725))
-
-# Create the heatmap
-im = ax.imshow(jnp.stack(exploration_results).reshape(n, n).T,
+im = ax.imshow(pivot.values,
                cmap='cividis_r',
-               extent=[G_min, G_max, w_min, w_max],
+               extent=[pivot.columns.min(), pivot.columns.max(),
+                       pivot.index.min(), pivot.index.max()],
                origin='lower',
                aspect='auto',
                interpolation='hamming')
@@ -423,13 +400,10 @@ G_route = np.array([ds.coupling.instant.G.value for ds in fitting_data["state"].
 w_route = np.array([ds.dynamics.w.value for ds in fitting_data["state"].save])
 ax.scatter(G_route[::2], w_route[::2], color='white', s=15, marker='o',
            linewidths=1, zorder=4, edgecolors='k')
-
-# Remove axes ticks and labels
-ax.set_xticks([])
-ax.set_yticks([])
-ax.set_xlabel('')
-ax.set_ylabel('')
-
+plt.colorbar(im, label="Loss (RMSE)")
+ax.set_xlabel('Global Coupling (G)')
+ax.set_ylabel('Excitatory Recurrence (w)')
+ax.set_title("Parameter Optimization Trace")
 plt.tight_layout()
 ```
 
@@ -457,8 +431,8 @@ show_parameters(fitted_state_het)
 
 ```{python}
 
-opt_het = OptaxOptimizer(loss, optax.adam(0.01), callback=cb)
-fitted_state_het, fitting_data_het = opt_het.run(fitted_state_het, max_steps=200)
+opt_het = OptaxOptimizer(loss, optax.adam(0.001), callback=cb)
+fitted_state_het, fitting_data_het = opt_het.run(fitted_state_het, max_steps=280)
 fitted_state_het = collect_parameters(fitted_state_het)
 ```
 
@@ -571,6 +545,12 @@ ax2.grid(True, alpha=0.3)
 
 plt.tight_layout()
 ```
+
+## Next Steps
+
+* Try changing the loss function from rsme to 1 - FC_Correlation and see how the loss landscape changes.
+* Adjust learning rates or parameters to fit. Can you get a correlation > 0.6?
+* Have a look below on how such a fitting workflow can be made reproducible and sharable with `tvbo`.
 
 ```{python}
 from tvbo.classes.network import Network

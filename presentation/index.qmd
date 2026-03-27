@@ -124,7 +124,7 @@ url = "https://git.bihealth.org/tvbo/tvb-o-ptim/-/blob/main/README.md?ref_type=h
 qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=20, border=2)
 qr.add_data(url)
 qr.make(fit=True)
-img = qr.make_image(image_factory=StyledPilImage, module_drawer=RoundedModuleDrawer(), embeded_image_path="../favicon.png")
+img = qr.make_image(image_factory=StyledPilImage, module_drawer=RoundedModuleDrawer())#, embeded_image_path="../favicon.png")
 display(img)
 ```
 
