@@ -119,7 +119,7 @@ Tools:
 tvbase.charite.de
 :::
 
-![Alt text](figures/tvbase.png)
+![Alt text](figures/tvbase.png){fig-align="center"}
 
 ## Hands-On
 
