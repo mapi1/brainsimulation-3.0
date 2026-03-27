@@ -47,7 +47,7 @@ title-slide-attributes:
 * Lets you define a networked system stochastic delay differential equations (SDDEs)
 * Includes timeseries transformations (eg. Bold Monitor)
 * Curates some models
-* GUI 🥲 
+* GUI 🥲
 :::
 
 ## Classic TVB - History
@@ -112,6 +112,10 @@ Tools:
 :::
 
 ![](figures/Biological-UDE.png){fig-align="center"}
+
+## Mapping Heterogenous Spatial Patterns of Biological Pathways with TVBase
+
+![tvbase.charite.de](figures/tvbase.png){fig-align="center"}
 
 ## Hands-On
 
