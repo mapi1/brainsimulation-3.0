@@ -2,7 +2,7 @@
 
 ## Hands-on session
 
-[Click here to open the notebook in Google Colab](https://colab.research.google.com/github/mapi1/nono.ipynb)
+[Click here to open the notebook in Google Colab](https://colab.research.google.com/github/mapi1/brainsimulation-3.0/blob/main/notebooks/ReducedWongWang_Optimization_TVBOptim.ipynb)
 
 ## Local Setup
 
