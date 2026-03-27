@@ -472,7 +472,7 @@ html[data-theme="dark"] #title-slide .subtitle {
 }
 
 .feature-gallery .card:hover {
-    transform: scale(1.5);
+    transform: scale(1.3);
     z-index: 1;
     box-shadow: 0 4px 16px rgba(0,0,0,.15);
 }
