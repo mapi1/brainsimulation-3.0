@@ -11,19 +11,27 @@ OUTPUT_QMD = PRESENTATION_DIR / "authors_gallery.qmd"
 HASH_CACHE = PRESENTATION_DIR / ".authors_yaml.md5"
 
 CARD_TEMPLATE = """\
-    <div style="flex: 1 1 calc(25% - 10px); margin: 5px; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; max-width: 200px; flex-shrink: 1;">
-        <a href="{link}" target="_blank" style="flex-grow: 1;">
-            <img src="{image}" style="width: 100%; height: auto; max-width: 100px; object-fit: cover; margin-bottom: 0; filter: grayscale(100%);">
+      <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+        <a href="{link}" target="_blank">
+                    <img src="{image}" style="width: clamp(128px, 11vw, 180px); height: clamp(128px, 11vw, 180px); object-fit: cover; border-radius: 50%; filter: grayscale(100%);">
         </a>
-        <p style="font-size: 1vw; margin-top: 5px;"><strong>{name}</strong></p>
-    </div>"""
+                <p style="margin: 8px 0 0; font-size: 0.66em; line-height: 1.2;"><strong>{name}</strong></p>
+      </div>"""
+
+
+def make_card(author):
+    return CARD_TEMPLATE.format(
+        link=author.get("link", "#"),
+        image=author["image"],
+        name=author["name"],
+    )
 
 
 def main():
     current_hash = hashlib.md5(AUTHORS_YAML.read_bytes()).hexdigest()
     if HASH_CACHE.exists() and OUTPUT_QMD.exists():
         if HASH_CACHE.read_text().strip() == current_hash:
-            print(f"authors_gallery.qmd is up to date, skipping.")
+            print("authors_gallery.qmd is up to date, skipping.")
             return
 
     with open(AUTHORS_YAML) as f:
@@ -32,23 +40,32 @@ def main():
     contributors = []
     supervisors = []
     for author in data["authors"]:
-        image = author.get("image", "")
-        if not image:
+        if not author.get("image"):
             continue
-        card = CARD_TEMPLATE.format(
-            link=author.get("link", "#"),
-            image=image,
-            name=author["name"],
-        )
         if author.get("supervisor"):
-            supervisors.append(card)
+            supervisors.append(author)
         else:
-            contributors.append(card)
+            contributors.append(author)
 
-    cards = contributors + supervisors
-    gallery_html = '```{{=html}}\n\n<div style="display: flex; flex-wrap: wrap; justify-content: center; width: 100%; align-items: stretch;">\n\n{cards}\n    </div>\n```'.format(
-        cards="\n    \n".join(cards)
-    )
+    contrib_cards = "\n".join(make_card(a) for a in contributors)
+    super_cards = "\n".join(make_card(a) for a in supervisors)
+
+    lines = [
+        '```{=html}',
+        '<div style="display: flex; flex-direction: column; justify-content: space-between; align-items: stretch; width: 100%; height: 100%; min-height: 58vh; box-sizing: border-box; padding: 1.2vh 4vw 1.8vh;">',
+        '  <div style="flex: 1; display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 12px;">',
+
+        contrib_cards,
+        '  </div>',
+        '  <div style="height: 1.5vh;"></div>',
+        '  <div style="flex: 1; display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 12px;">',
+
+        super_cards,
+        '  </div>',
+        '</div>',
+        '```',
+    ]
+    gallery_html = "\n".join(lines)
 
     OUTPUT_QMD.write_text(gallery_html + "\n")
     HASH_CACHE.write_text(current_hash + "\n")

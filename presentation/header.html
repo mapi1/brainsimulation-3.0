@@ -148,7 +148,8 @@
     function fitSlide(slide) {
       if (!slide) return;
       setCodeBodyHeight(slide);
-      fitSlideText(slide);
+      var hasDenseContent = !!slide.querySelector('div.sourceCode, pre.sourceCode, .columns, .r-stretch, .feature-gallery');
+      if (hasDenseContent) fitSlideText(slide);
       setCodeBodyHeight(slide);
       fitCodeBlocks(slide);
       slide.dataset.fitted = '1';    // mark: never re-fit this slide
@@ -172,3 +173,4 @@
     document.addEventListener('DOMContentLoaded', init);
   })();
 </script>
+

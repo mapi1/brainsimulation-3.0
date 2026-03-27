@@ -123,7 +123,6 @@ authors:
     link: https://neurologie.charite.de/metas/person/person/address_detail/dr_jil_meier/
 
   - name: Halgurd Taher
-    supervisor: true
     affiliation:
       - ref: bih
       - ref: charite

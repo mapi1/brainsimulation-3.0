@@ -38,7 +38,7 @@ author:
 date: last-modified
 bibliography: bibliography.bib
 ---
-<!-- 
+<!--
 ## Motivation
 
 - What is wrong with TVB?
@@ -68,7 +68,7 @@ $\rightarrow$ Can we use better tools to do the Job?
 
 ## Brain Simulation 3.0
 
-<!-- 
+<!--
 ## Classic TVB - Math
 
 :::: {.columns}
@@ -122,7 +122,7 @@ $$
 ## Specify Reproducible Simulation Experiments with:
 
 
-![Knowledge Management for Digital Brain Twins [@Martin2025]](figures/tvbo_logo.png)
+![Knowledge Management for Digital Brain Twins [@Martin2025]](figures/tvbo_logo.png){width=10px}
 
 
 {{< include Slides/tvbo.qmd >}}
@@ -148,6 +148,8 @@ $$
 
 ## Thank You
 
+::: {.r-stretch}
 {{< include authors_gallery.qmd >}}
+:::
 
 ## References
