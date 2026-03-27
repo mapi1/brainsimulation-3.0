@@ -38,10 +38,12 @@ author:
 date: last-modified
 bibliography: bibliography.bib
 ---
+<!-- 
 ## Motivation
 
 - What is wrong with TVB?
 - Can we do better?
+ -->
 
 ## Classic TVB - History
 
@@ -52,11 +54,14 @@ bibliography: bibliography.bib
   - Machine Learning meant gradient boosted trees & CNNs for vision
 :::
 
-## Classic TVB - Math
+::: {.fragment}
+$\rightarrow$ Can we use better tools?
+:::
 
-<!-- $$
-f_d(S_i, \theta^d, C_i, I_i)
-$$ -->
+## Brain Simulation 3.0
+
+<!-- 
+## Classic TVB - Math
 
 :::: {.columns}
 
@@ -104,6 +109,7 @@ $$
 :::
 
 ::::
+ -->
 
 ## Specify Reproducible Simulation Experiments with:
 
