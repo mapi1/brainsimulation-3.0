@@ -39,6 +39,7 @@ The workflow includes:
 cpu = True
 if cpu:
     N_devices = 8
+    # The JAX pmap Trick. More devices results in JAX to more aggressively parallelize
     os.environ['XLA_FLAGS'] = f'--xla_force_host_platform_device_count={N_devices}'
 
 # Import all required libraries
@@ -53,11 +54,11 @@ import optax
 from IPython.display import Markdown
 
 # Import from tvboptim
-from tvboptim.types import Parameter, Space, GridAxis
-from tvboptim.types.stateutils import show_parameters
+from tvboptim.types import Parameter, BoundedParameter, NormalizedParameter, Space, GridAxis
+from tvboptim.types.stateutils import show_parameters, collect_parameters, combine_state
 from tvboptim.execution import ParallelExecution
 from tvboptim.optim.optax import OptaxOptimizer
-from tvboptim.optim.callbacks import MultiCallback, DefaultPrintCallback, SavingCallback
+from tvboptim.optim.callbacks import MultiCallback, DefaultPrintCallback, SavingCallback, AbstractCallback
 
 # Network dynamics imports
 from tvboptim.experimental.network_dynamics import prepare
@@ -91,22 +92,20 @@ lobar8.plot_overview(log_weights=True)
 ```
 
 ```{python}
-lobar8
+W = lobar8.matrix("weight")
+print(f"Weight range: [{np.min(W):.2f}, {np.max(W):.2f}]")
 ```
 
-```{python}
-print("min", np.min(lobar8.matrix("weight")), "max", np.max(lobar8.matrix("weight")))
-```
+Structural connectivity weights span several orders of magnitude, reflecting fiber count estimates from tractography. We apply min-max normalization $W \mapsto (W - W_{\min}) / (W_{\max} - W_{\min})$ to map the weight matrix to $[0, 1]$. This ensures numerical stability during simulation.
 
 ```{python}
-# Normalize weights to [0, 1] range
-lobar8.normalize_weights()  # lobar8.transforms = {rhs: 'W / max(W)'}
-
+lobar8.normalize_weights()
 lobar8.transforms
 ```
 
 ```{python}
-print("min", np.min(lobar8.matrix("weight")), "max", np.max(lobar8.matrix("weight")))
+W = lobar8.matrix("weight")
+print(f"Weight range: [{np.min(W):.2f}, {np.max(W):.2f}]")
 ```
 
 ```{python}
@@ -115,6 +114,8 @@ lobar8.node_labels
 
 ## The Reduced Wong-Wang Model
 
+We load the Reduced Wong-Wang model from the `tvbo` database. The model report below summarizes the equations, state variables, and default parameter values.
+
 ```{python}
 from tvbo import Dynamics
 dynamics = Dynamics.from_db("ReducedWongWangTvboptim")
@@ -122,9 +123,13 @@ dynamics = Dynamics.from_db("ReducedWongWangTvboptim")
 Markdown(dynamics.render('report'))
 ```
 
+The following shows the generated model code for the TVB-Optim backend.
+
 ```{python}
 Markdown(f"```python\n{dynamics.render('tvboptim')}\n```")
 ```
+
+We add additive white noise to the variable $S$, converting the ODE into a stochastic differential equation (SDE).
 
 ```{python}
 from tvbo import Noise
@@ -140,20 +145,27 @@ dynamics.state_variables["S"].noise = Noise(
 We combine the RWW dynamics with structural connectivity to create a whole-brain network model.
 
 ### Add Dynamics
+
+Attach the stochastic Reduced Wong-Wang model to the network as the local node dynamics.
+
 ```{python}
 lobar8.dynamics['ReducedWongWangTvboptim'] = dynamics
 ```
 
-## Add Coupling
+### Add Coupling
+
+Load a fast linear coupling function that scales incoming signals by the global coupling strength $G$ without delay.
+
 ```{python}
 from tvbo import Coupling
 lobar8.coupling['instant'] = Coupling.from_db("FastLinearCoupling")
-lobar8.coupling['instant'].delayed
 ```
+
+Compile the network specification into a TVB-Optim simulation.
 
 ```{python}
 network = lobar8.execute('tvboptim')
-network.graph
+network
 ```
 
 ## Preparing and Running the Simulation
@@ -162,7 +174,7 @@ We prepare the network for simulation and run an initial transient to reach a qu
 
 ```{python}
 # Prepare simulation: compile model and initialize state
-t1 = 180_000  # Total simulation duration (ms) - 2 minutes
+t1 = 100_000  # Total simulation duration (ms)
 dt = 4.0      # Integration timestep (ms)
 solver = BoundedSolver(Heun(), low=0.0, high=1.0)  # Bound S to [0, 1]
 model, state = prepare(network, solver, t1=t1, dt=dt)
@@ -195,46 +207,27 @@ bold_monitor = Bold(
 bold_result = bold_monitor(result)
 ```
 
+We visualize the raw synaptic activity $S(t)$ (first 1000 ms) alongside the resulting BOLD signal (first 60 TRs), with regions colored by their mean activation.
+
 ```{python}
-
 from matplotlib.colors import Normalize
+
+def plot_traces(ax, time, data, title, xlabel, ylabel, lw=0.5):
+    mean_vals = np.mean(data, axis=0)
+    norm = Normalize(vmin=mean_vals.min(), vmax=mean_vals.max())
+    for i in range(data.shape[1]):
+        ax.plot(time, data[:, i], color=plt.cm.cividis(norm(mean_vals[i])), lw=lw)
+    ax.text(0.95, 0.95, title, transform=ax.transAxes, fontsize=10,
+            ha='right', va='top', bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8.1, 3.0375))
-
-# Plot raw neural activity (first 1000 ms)
 t_max_idx = int(1000 / dt)
-time_raw = result.time[:t_max_idx]
-data_raw = result.data[:t_max_idx, 0, :]
-
-num_lines = data_raw.shape[1]
-cmap = plt.cm.cividis
-mean_values = np.mean(data_raw, axis=0)
-norm = Normalize(vmin=np.min(mean_values), vmax=np.max(mean_values))
-for i in range(num_lines):
-    color = cmap(norm(mean_values[i]))
-    ax1.plot(time_raw, data_raw[:, i], color=color, linewidth=0.5)
-
-ax1.text(0.95, 0.95, "Raw Neural Activity", transform=ax1.transAxes, fontsize=10,
-         ha='right', va='top', bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
-ax1.set_xlabel("Time [ms]")
-ax1.set_ylabel("S [a.u.]")
-
-# Plot BOLD signal (first 60 TRs)
-t_bold_max = 60
-time_bold = bold_result.time[:t_bold_max]
-data_bold = bold_result.data[:t_bold_max, 0, :]
-
-num_lines = data_bold.shape[1]
-mean_values = np.mean(data_bold, axis=0)
-norm = Normalize(vmin=np.min(mean_values), vmax=np.max(mean_values))
-for i in range(num_lines):
-    color = cmap(norm(mean_values[i]))
-    ax2.plot(time_bold, data_bold[:, i], color=color, linewidth=0.8)
-
-ax2.text(0.95, 0.95, "BOLD Signal", transform=ax2.transAxes, fontsize=10,
-         ha='right', va='top', bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
-ax2.set_xlabel("Time [s]")
-ax2.set_ylabel("BOLD [a.u.]")
-
+plot_traces(ax1, result.time[:t_max_idx], result.data[:t_max_idx, 0, :],
+            "Raw Neural Activity", "Time [ms]", "S [a.u.]", lw=0.5)
+plot_traces(ax2, bold_result.time[:60], bold_result.data[:60, 0, :],
+            "BOLD Signal", "Time [s]", "BOLD [a.u.]", lw=0.8)
 plt.tight_layout()
 ```
 
@@ -246,62 +239,42 @@ Functional connectivity (FC) measures the temporal correlation between BOLD sign
 fc_target = lobar8.matrix('fc')
 ```
 
-```{python}
+A core pattern in TVB-Optim is compositional function wrapping: each processing stage (`model`, `bold_monitor`, `compute_fc`) is a pure function that we compose into higher-level functions while closing over any required data (e.g., `fc_target`). This ensures every function remains a mapping from `state` to output, which is the interface JAX requires for automatic differentiation. Complexity is built incrementally (simulation, hemodynamic forward model, FC computation, and loss) while preserving end-to-end differentiability.
 
+```{python}
 def observation(state):
-    """Compute functional connectivity from simulated BOLD signal."""
-    # Run simulation
     result = model(state)
-    # Convert to BOLD
     bold = bold_monitor(result)
-    # Compute FC, skipping first 20 TRs to avoid transient effects
     fc = compute_fc(bold, skip_t=20)
     return fc
 
 def loss(state):
-    """Compute RMSE between simulated and empirical FC."""
     fc = observation(state)
-    # return 1- fc_corr(fc, fc_target)
+    # Alternative loss: 1 - FC correlation (useful for exploring different optimization landscapes)
+    # return 1 - fc_corr(fc, fc_target)
     return rmse(fc, fc_target)
 ```
 
+We compare the empirical target FC with the simulated FC from the initial (default) parameters to establish the baseline mismatch before optimization.
+
 ```{python}
+fc_initial = observation(state)
 
-# Calculate initial FC
-fc_initial = np.array(observation(state))
+def plot_fc(ax, fc, label, reference=None):
+    fc_plot = np.copy(fc)
+    np.fill_diagonal(fc_plot, np.nan)
+    ax.imshow(fc_plot, cmap='cividis', vmax=0.9)
+    ax.set_xticks([]); ax.set_yticks([])
+    title = label
+    if reference is not None:
+        title += f"\nr = {fc_corr(fc, reference):.3f}, RMSE = {rmse(fc, reference):.3f}"
+    ax.annotate(title, xy=(0.25, 0.95), xycoords='axes fraction', ha='left', va='top',
+                fontsize=10, fontweight='bold',
+                bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.9))
 
-# Create figure
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8.1, 3.54375))
-
-# Plot both FC matrices
-for ax_current, fc_matrix, title_prefix in zip([ax1, ax2], [fc_target, fc_initial], ["Target FC", "Initial FC"]):
-    fc_matrix = np.copy(fc_matrix)
-    np.fill_diagonal(fc_matrix, np.nan)  # Set diagonal to NaN
-    im = ax_current.imshow(fc_matrix, cmap='cividis', vmax=0.9)
-
-    ax_current.set_xticks([])
-    ax_current.set_yticks([])
-    ax_current.set_xlabel('')
-    ax_current.set_ylabel('')
-
-    # Calculate correlation and RMSE for title
-    if title_prefix == "Initial FC":
-        corr_value = fc_corr(fc_initial, fc_target)
-        rmse_value = rmse(fc_initial, fc_target)
-        title = f"{title_prefix}\nr = {corr_value:.3f}, RMSE = {rmse_value:.3f}"
-    else:
-        title = title_prefix
-
-    # Add title as annotation
-    ax_current.annotate(title,
-                       xy=(0.25, 0.95),
-                       xycoords='axes fraction',
-                       ha='left', va='top',
-                       fontsize=10, fontweight='bold',
-                       color='black',
-                       bbox=dict(boxstyle='round,pad=0.3',
-                                facecolor='white', alpha=0.9))
-
+plot_fc(ax1, fc_target, "Target FC")
+plot_fc(ax2, fc_initial, "Initial FC", reference=fc_target)
 plt.tight_layout()
 ```
 
@@ -322,7 +295,7 @@ grid_state.coupling.instant.G = GridAxis(0.001, 2.0, n)
 # Create space (product creates all combinations of w and G)
 grid = Space(grid_state, mode="product")
 
-# Parallel execution across 8 processes
+# Parallel execution across 8 "devices"
 exec = ParallelExecution(loss, grid, n_pmap=8)
 # Alternative: Sequential execution
 # exec = SequentialExecution(loss, grid)
@@ -372,17 +345,31 @@ gc.collect()
 
 ```{python}
 # Mark parameters as optimizable
-state.coupling.instant.G = Parameter(state.coupling.instant.G)
-state.dynamics.w = Parameter(state.dynamics.w)
+state_opt = copy.deepcopy(state)
+state_opt.coupling.instant.G = BoundedParameter(state.coupling.instant.G, low=0.0, high=jnp.inf)
+state_opt.dynamics.w = Parameter(state.dynamics.w)
+
+class PlotFCCallback(AbstractCallback):
+    def do(
+        self, i, diff_state, static_state, fitting_data, aux_data, loss_value, grads
+    ):
+        fc = observation(combine_state(diff_state, static_state))
+        f, ax = plt.subplots(figsize=(3,3), dpi = 100)
+        plot_fc(ax, fc, f"Step {i}", reference=fc_target)
+        plt.show()
+        return False, diff_state, static_state
+
 
 # Create and run optimizer
 cb = MultiCallback([
     DefaultPrintCallback(every=10),
-    SavingCallback(key="state", save_fun=lambda *args: args[1])  # Save updated state
+    SavingCallback(key="state", save_fun=lambda *args: args[1]),  # Save updated state
+    PlotFCCallback(every=10)
 ])
 
 opt = OptaxOptimizer(loss, optax.adam(0.01), callback=cb)
-fitted_state, fitting_data = opt.run(state, max_steps=200)
+fitted_state, fitting_data = opt.run(state_opt, max_steps=200)
+fitted_state = collect_parameters(fitted_state)
 ```
 
 ```{python}
@@ -408,8 +395,8 @@ im = ax.imshow(jnp.stack(exploration_results).reshape(n, n).T,
                interpolation='hamming')
 
 # Mark initial value
-G_init = state.coupling.instant.G.value
-w_init = state.dynamics.w.value
+G_init = state.coupling.instant.G
+w_init = state.dynamics.w
 ax.scatter(G_init, w_init, color='white', s=100, marker='o',
            edgecolors='k', linewidths=2, zorder=5)
 
@@ -420,8 +407,8 @@ ax.annotate('Initial', xy=(G_init, w_init),
             path_effects=[path_effects.withStroke(linewidth=3, foreground='black')])
 
 # Add fitted value point
-G_fit = fitted_state.coupling.instant.G.value
-w_fit = fitted_state.dynamics.w.value
+G_fit = fitted_state.coupling.instant.G
+w_fit = fitted_state.dynamics.w
 ax.scatter(G_fit, w_fit, color='white', s=100, marker='o',
            edgecolors='k', linewidths=2, zorder=5)
 
@@ -448,7 +435,7 @@ plt.tight_layout()
 
 ## Heterogeneous Optimization
 
-Global parameters (same for all regions) may not capture region-specific variations needed for optimal FC fit. We now make parameters heterogeneous: each brain region gets its own `w` and `I_o` values, while keeping `G` global.
+Global parameters (same for all regions) may not capture region-specific variations needed for optimal FC fit. We now make parameters heterogeneous: each brain region gets its own `w` and `I_o` values.
 
 ```{python}
 #| lines_to_next_cell: 2
@@ -458,23 +445,21 @@ n_nodes = lobar8.number_of_nodes
 fitted_state_het = copy.deepcopy(fitted_state)
 
 # # Make w regional (one value per node)
+fitted_state_het.dynamics.w = BoundedParameter(fitted_state.dynamics.w, low=0.0, high=jnp.inf)
 fitted_state_het.dynamics.w.shape = (n_nodes,)
 
 # Also make I_o regional and mark as optimizable
-fitted_state_het.dynamics.I_o = Parameter(fitted_state_het.dynamics.I_o)
+fitted_state_het.dynamics.I_o = NormalizedParameter(fitted_state_het.dynamics.I_o)
 fitted_state_het.dynamics.I_o.shape = (n_nodes,)
 
-# Keep global coupling fixed at optimized value
-fitted_state_het.coupling.instant.G = fitted_state_het.coupling.instant.G.value
-
-# fitted_state_het.graph._weights = Parameter(fitted_state_het.graph.weights)
 show_parameters(fitted_state_het)
 ```
 
 ```{python}
 
-opt_het = OptaxOptimizer(loss, optax.adam(0.001), callback=cb)
+opt_het = OptaxOptimizer(loss, optax.adam(0.01), callback=cb)
 fitted_state_het, fitting_data_het = opt_het.run(fitted_state_het, max_steps=200)
+fitted_state_het = collect_parameters(fitted_state_het)
 ```
 
 ## Comparing Global vs Regional Parameters
@@ -556,11 +541,11 @@ Let's examine the fitted region-specific parameters and their relationship to st
 mean_connectivity = np.mean(lobar8.matrix('weight'), axis=1)
 
 # Extract fitted regional parameters
-w_fitted = fitted_state_het.dynamics.w.value.flatten()
-I_o_fitted = fitted_state_het.dynamics.I_o.value.flatten()
+w_fitted = fitted_state_het.dynamics.w
+I_o_fitted = fitted_state_het.dynamics.I_o
 
 # Get global optimization values for reference
-w_global = fitted_state.dynamics.w.value
+w_global = fitted_state.dynamics.w
 I_o_global = fitted_state.dynamics.I_o  # Not optimized in global fit, but initial value
 
 # Create figure
