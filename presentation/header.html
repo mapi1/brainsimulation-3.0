@@ -1,3 +1,7 @@
+<link rel="icon" type="image/png" href="../favicon.png?v=1" />
+<link rel="shortcut icon" href="../favicon.png?v=1" />
+<link rel="apple-touch-icon" href="../favicon.png?v=1" />
+
 <script>
   (function () {
     const storageKey = "tvb-o-ptim-theme";
@@ -51,6 +55,78 @@
         });
     }
   })();
+</script>
+
+<script>
+  /* ── Iframe-slide navigation overlay ─────────────────────────────────────
+   * Problem: background-interactive iframes capture keyboard focus, so
+   *   arrow-key navigation stops working once the user clicks inside.
+   * Fix: Floating prev/next arrow buttons on iframe slides.
+   * ─────────────────────────────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
+
+    /* CSS for the overlay nav */
+    var style = document.createElement('style');
+    style.textContent = [
+      '.iframe-nav { position: fixed; top: 50%; z-index: 40;',
+      '  transform: translateY(-50%); display: none;',
+      '  background: rgba(0,0,0,0.35); color: #fff; border: none;',
+      '  font-size: 1.6rem; padding: 12px 8px; cursor: pointer;',
+      '  border-radius: 6px; backdrop-filter: blur(4px);',
+      '  transition: opacity .2s; opacity: 0.5; }',
+      '.iframe-nav:hover { opacity: 1; }',
+      '.iframe-nav.prev { left: 8px; }',
+      '.iframe-nav.next { right: 8px; }'
+    ].join('\n');
+    document.head.appendChild(style);
+
+    var prev = document.createElement('button');
+    prev.className = 'iframe-nav prev';
+    prev.innerHTML = '&#9664;';
+    prev.setAttribute('aria-label', 'Previous slide');
+
+    var next = document.createElement('button');
+    next.className = 'iframe-nav next';
+    next.innerHTML = '&#9654;';
+    next.setAttribute('aria-label', 'Next slide');
+
+    document.body.appendChild(prev);
+    document.body.appendChild(next);
+
+    function isIframeSlide() {
+      var slide = Reveal.getCurrentSlide();
+      return slide && slide.hasAttribute('data-background-iframe');
+    }
+
+    function updateNav() {
+      var show = isIframeSlide() ? 'block' : 'none';
+      prev.style.display = show;
+      next.style.display = show;
+    }
+
+    function refocus() {
+      /* Blur any iframe that grabbed focus */
+      if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+        document.activeElement.blur();
+      }
+      document.querySelector('.reveal').focus();
+    }
+
+    Reveal.on('slidechanged', updateNav);
+    Reveal.on('ready', updateNav);
+
+    prev.addEventListener('click', function (e) {
+      e.stopPropagation();
+      refocus();
+      Reveal.prev();
+    });
+    next.addEventListener('click', function (e) {
+      e.stopPropagation();
+      refocus();
+      Reveal.next();
+    });
+  });
 </script>
 
 <script>
