@@ -115,7 +115,9 @@ Tools:
 
 ## Mapping Heterogenous Spatial Patterns of Biological Pathways with TVBase
 
-### tvbase.charite.de
+::: {style="font-size: 2em;"}
+tvbase.charite.de
+:::
 
 ![Alt text](figures/tvbase.png)
 
