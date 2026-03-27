@@ -278,6 +278,8 @@ final_state, opt_data = opt.run(optimized_state, max_steps=500)
 :::
 ::::
 
+## {background-iframe="https://virtual-twin.github.io/tvboptim" background-interactive=true}
+
 ## Going Beyond: Hybrid Brain Network Models
 
 Universal Differential Equations:
