@@ -135,6 +135,11 @@ img = qr.make_image(image_factory=StyledPilImage, module_drawer=RoundedModuleDra
 display(img)
 ```
 
+:::{.r-fit-text}
+**or: https://github.com/mapi1/brainsimulation-3.0
+**
+:::
+
 ## Thank You
 
 ::: {.r-stretch}
