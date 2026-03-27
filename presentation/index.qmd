@@ -138,4 +138,8 @@ $$
 
 ![](figures/qrcode.png){fig-align="center"}
 
+## Thank You
+
+{{< include authors_gallery.qmd >}}
+
 ## References
