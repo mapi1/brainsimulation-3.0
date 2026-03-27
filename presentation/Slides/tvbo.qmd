@@ -416,16 +416,16 @@ dk.plot_overview(log_weights=True)
 ```
 
 ## Full Experiments - Jansen & Rit (1995): Fig. 11 VEP delayed columns {.smaller}
+[@Jansen1995]
+:::: {.columns}
 
-::::: {.columns}
-
-:::: {.column width="30%"}
+::: {.column width="30%"}
 **Original**
 
 ![](figures/jansen1995/original/fig_11.png)
-::::
+:::
 
-:::: {.column width="40%"}
+::: {.column width="40%"}
 ```yaml
 - id: 6
   label: "VEP: different columns, with delay
@@ -515,15 +515,15 @@ dk.plot_overview(log_weights=True)
             - element: 1
               explored_values: [1000, 4000]
 ```
-::::
+:::
 
-:::: {.column width="30%"}
+::: {.column width="30%"}
 **Reproduced**
 
 ![](figures/jansen1995/reproduced/Jansen1995_Fig11.png)
-::::
+:::
 
-:::::
+::::
 
 
 ## {background-iframe="https://tvbo.charite.de/" background-interactive=true}

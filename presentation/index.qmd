@@ -111,7 +111,21 @@ Tools:
 **wiki.ebrains.eu/bin/view/Collabs/brainsimulation-3-0/Lab**
 :::
 
-![](figures/qrcode.png){fig-align="center"}
+```{python}
+#| echo: false
+#| fig-align: center
+import qrcode
+from qrcode.image.styledpil import StyledPilImage
+from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
+from IPython.display import display
+
+url = "https://git.bihealth.org/tvbo/tvb-o-ptim/-/blob/main/README.md?ref_type=heads"
+qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=20, border=2)
+qr.add_data(url)
+qr.make(fit=True)
+img = qr.make_image(image_factory=StyledPilImage, module_drawer=RoundedModuleDrawer(), embeded_image_path="../favicon.png")
+display(img)
+```
 
 ## Thank You
 
