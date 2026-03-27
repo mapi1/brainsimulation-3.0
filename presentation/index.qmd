@@ -45,6 +45,14 @@ bibliography: bibliography.bib
 - Can we do better?
  -->
 
+## Classic TVB - What is it?
+
+::: {.incremental}
+* Lets you define a networked system stochastic delay differential equations (SDDEs)
+* Includes timeseries transformations (eg. Bold Monitor)
+* Curates some models
+:::
+
 ## Classic TVB - History
 
 ::: {.incremental}
@@ -55,7 +63,7 @@ bibliography: bibliography.bib
 :::
 
 ::: {.fragment}
-$\rightarrow$ Can we use better tools?
+$\rightarrow$ Can we use better tools to do the Job?
 :::
 
 ## Brain Simulation 3.0
