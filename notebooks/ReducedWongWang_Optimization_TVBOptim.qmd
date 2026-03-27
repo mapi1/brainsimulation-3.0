@@ -378,6 +378,7 @@ ax.scatter(G_init, w_init, color='white', s=100, marker='o',
            edgecolors='k', linewidths=2, zorder=5)
 
 # Add annotation
+w_min, w_max = pivot.index.min(), pivot.index.max()
 ax.annotate('Initial', xy=(G_init, w_init),
             xytext=(G_init, w_init+0.05*(w_max-w_min)),
             color='white', fontweight='bold', ha='center', zorder=5,
@@ -550,7 +551,7 @@ plt.tight_layout()
 
 * Try changing the loss function from rsme to 1 - FC_Correlation and see how the loss landscape changes.
 * Adjust learning rates or parameters to fit. Can you get a correlation > 0.6?
-* Have a look below on how such a fitting workflow can be made reproducible and sharable with `tvbo`.
+* Have a look below on how such a fitting workflow can be made reproducible and sharable with `tvbo` or regional parameters can be plotted on a cortical surface.
 
 ```{python}
 from tvbo.classes.network import Network
@@ -563,8 +564,8 @@ rm_lh = surf_lh.node_mapping_data  # (163842,) values 0-5
 rm_rh = surf_rh.node_mapping_data  # (163842,) values 8-13
 
 # Extract fitted regional params (16 nodes)
-w_fitted = np.array(fitted_state_het.dynamics.w.value).flatten()
-I_o_fitted = np.array(fitted_state_het.dynamics.I_o.value).flatten()
+w_fitted = np.array(fitted_state_het.dynamics.w).flatten()
+I_o_fitted = np.array(fitted_state_het.dynamics.I_o).flatten()
 
 
 # Project node values → vertex arrays per hemisphere (0 for medial wall)
