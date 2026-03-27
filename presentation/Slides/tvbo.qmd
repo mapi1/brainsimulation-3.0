@@ -230,7 +230,7 @@ print("</div>")
 ::: {.fragment fragment-index=1}
 
 
-```yaml {code-line-numbers="|1-2|3" fragment-index=0}
+```yaml
 name: PendulumSystem
 parameters:
     c:
