@@ -183,7 +183,7 @@ features = [
     # ("Discrete Models", "Slides/figures/gallery/discrete.png", None),
     ("PDEs", "Slides/figures/gallery/pde.gif", ["Neural Fields", "Spatial Dynamics"]),
     ("Bifurcation Analysis", "Slides/figures/gallery/bifurcation.png", ["Fixed Points", "Continuation"]),
-    ("Model Fitting", "Slides/figures/gallery/model_fitting.png", ["Gradient-Based", "Differentiable Simulation"]),
+    ("Model Fitting", "Slides/figures/gallery/sc_to_fc.gif", ["Gradient-Based", "Differentiable Simulation"]),
     ("BIDS Export", "Slides/figures/gallery/BIDS.png", ["BEP034", "Standardized Output"]),
     ("OpenMINDS", "Slides/figures/gallery/openMINDS_logo_light.png", ["Knowledge Graphs", "EBRAINS"]),
     ("Stochastic Parameters (RDEs)", "Slides/figures/gallery/stochastic_parameters.png", ["Distributions over Parameters", "Random ODEs"]),
@@ -230,7 +230,7 @@ print("</div>")
 ::: {.fragment fragment-index=1}
 
 
-```yaml {code-line-numbers="|1-2|3"}
+```yaml {code-line-numbers="|1-2|3" fragment-index=0}
 name: PendulumSystem
 parameters:
     c:
