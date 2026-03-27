@@ -63,7 +63,9 @@ $\rightarrow$ Can we use better tools to do the Job?
 
 ## Brain Simulation 3.0
 
+::: {.fragment}
 Goals:
+:::
 
 ::: {.incremental}
 * Reproducibility
@@ -72,6 +74,16 @@ Goals:
 * Easy to use
 * Customizable + Interoparability with own workflow
 :::
+
+::: {.fragment}
+Tools:
+:::
+
+::: {.incremental}
+* TVB-O [![PyPI version](https://img.shields.io/pypi/v/tvbo.svg)](https://pypi.org/project/tvbo/)
+* TVB-Optim [![PyPI version](https://img.shields.io/pypi/v/tvboptim.svg)](https://pypi.org/project/tvboptim/)
+:::
+
 
 <!--
 ## Classic TVB - Math
