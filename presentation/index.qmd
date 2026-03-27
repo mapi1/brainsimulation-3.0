@@ -38,12 +38,6 @@ author:
 date: last-modified
 bibliography: bibliography.bib
 ---
-<!--
-## Motivation
-
-- What is wrong with TVB?
-- Can we do better?
- -->
 
 ## Classic TVB - What is it?
 
@@ -67,6 +61,15 @@ $\rightarrow$ Can we use better tools to do the Job?
 :::
 
 ## Brain Simulation 3.0
+
+Goals:
+
+::: {.incremental}
+* Reproducibility
+* Fast & Scalable
+* Differentiable
+* Easy to use
+:::
 
 <!--
 ## Classic TVB - Math
