@@ -85,57 +85,6 @@ Tools:
 :::
 
 
-<!--
-## Classic TVB - Math
-
-:::: {.columns}
-
-::: {.column}
-::: {.fragment fragment-index=0}
-$$
-dS_i = \left[f_d(S_i, \theta^d, C_i, I_i) \right]dt + g(S_i, \theta^g)\, dW_i
-$$
-
-::: {style="font-size: 0.55em;"}
-
-**State Evolution**
-
-- $S_i$ - state variables at node $i$
-- $f_d$ - dynamics function with parameters $\theta^d$
-- $C_i$ - coupling input from connected nodes
-- $I_i$ - external input (stimulation, driving signals)
-- $g$ - noise diffusion coefficient with parameters $\theta^g$
-- $dW_i$ - Wiener process (stochastic fluctuations)
-:::
-
-:::
-
-:::
-
-
-::: {.column}
-
-::: {.fragment fragment-index=2}
-$$
-C_i = f_c^{\text{post}}\Big(\sum_j A_{ij}\, f_c^{\text{pre}}(S_i, S_j(t-\tau_{ij}), \theta^c), S_i, \theta^c\Big)
-$$
-
-::: {style="font-size: 0.55em;"}
-**Coupling**
-
-- $f_c^{\text{pre}}$ - pre-aggregation transformation
-- $A_{ij}$ - structural connectivity weight ($j \to i$)
-- $\tau_{ij}$ - transmission delay (tract length / conduction speed)
-- $f_c^{\text{post}}$ - post-aggregation transformation
-- $\theta^c$ - coupling parameters
-:::
-
-:::
-:::
-
-::::
- -->
-
 ## Specify Reproducible Simulation Experiments with:
 
 
@@ -161,7 +110,21 @@ $$
 **wiki.ebrains.eu/bin/view/Collabs/brainsimulation-3-0/Lab**
 :::
 
-![](figures/qrcode.png){fig-align="center"}
+```{python}
+#| echo: false
+#| fig-align: center
+import qrcode
+from qrcode.image.styledpil import StyledPilImage
+from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
+from IPython.display import display
+
+url = "https://git.bihealth.org/tvbo/tvb-o-ptim/-/blob/main/README.md?ref_type=heads"
+qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=20, border=2)
+qr.add_data(url)
+qr.make(fit=True)
+img = qr.make_image(image_factory=StyledPilImage, module_drawer=RoundedModuleDrawer(), embeded_image_path="../favicon.png")
+display(img)
+```
 
 ## Thank You
 
