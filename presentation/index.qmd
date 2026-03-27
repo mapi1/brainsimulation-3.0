@@ -40,6 +40,14 @@ title-slide-attributes:
   data-background-opacity: "0.16"
 ---
 
+## Classic TVB - What is it?
+
+::: {.incremental}
+* Lets you define a networked system stochastic delay differential equations (SDDEs)
+* Includes timeseries transformations (eg. Bold Monitor)
+* Curates some models
+:::
+
 ## Classic TVB - History
 
 ::: {.incremental}
@@ -50,7 +58,7 @@ title-slide-attributes:
 :::
 
 ::: {.fragment}
-$\rightarrow$ Can we use better tools?
+$\rightarrow$ Can we use better tools to do the Job?
 :::
 
 ## Specify Reproducible Simulation Experiments with:
