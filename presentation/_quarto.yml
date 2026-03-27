@@ -8,6 +8,9 @@ format:
   revealjs:
     favicon: ../tvboptim.ico
 
+website:
+  favicon: ../tvboptim.ico
+
 jupyter: python3
 
 execute:

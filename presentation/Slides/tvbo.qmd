@@ -230,7 +230,7 @@ print("</div>")
 ::: {.fragment fragment-index=1}
 
 
-```yaml
+```yaml {code-line-numbers="|1-2|3"}
 name: PendulumSystem
 parameters:
     c:
@@ -269,7 +269,7 @@ pendulum.render('report')
 :::
 
 
-::: {.fragment fragment-index=3 style="font-size: 0.7em;"}
+::: {.fragment fragment-index=3 style="font-size: 0.9em;"}
 
 #### PendulumSystem
 
