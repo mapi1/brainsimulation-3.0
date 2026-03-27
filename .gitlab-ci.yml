@@ -38,7 +38,7 @@ render:
     # Create venv and install dependencies
     - uv venv .venv --python ${PYTHON_VERSION}
     - source .venv/bin/activate
-    - uv pip install tvbo[all] bsplot jupyter-cache
+    - uv pip install tvbo[all] bsplot jupyter-cache qrcode
   script:
     - source .venv/bin/activate
     - cd presentation && quarto render

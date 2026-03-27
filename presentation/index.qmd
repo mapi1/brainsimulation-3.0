@@ -104,7 +104,14 @@ Tools:
 
 ## Biological Mechanistic Model-Discovery
 
-![](figures/Biological-UDE.png)
+::: {style="font-size: 0.8em;"}
+* Learning the dynamics of biological pathways
+* Replace unknown terms in equations with neural networks — learn biology, not just fits
+* TVB-O provides the mechanistic scaffold; TVB-Optim supplies the gradients to train it
+* Discovered components stay interpretable: constrained by network structure & known dynamics
+:::
+
+![](figures/Biological-UDE.png){fig-align="center"}
 
 ## Hands-On
 
