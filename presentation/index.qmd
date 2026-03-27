@@ -47,6 +47,7 @@ title-slide-attributes:
 * Lets you define a networked system stochastic delay differential equations (SDDEs)
 * Includes timeseries transformations (eg. Bold Monitor)
 * Curates some models
+* GUI 🥲 
 :::
 
 ## Classic TVB - History
