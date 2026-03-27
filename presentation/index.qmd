@@ -70,6 +70,7 @@ Goals:
 * Fast & Scalable
 * Differentiable
 * Easy to use
+* Customizable + Interoparability with own workflow
 :::
 
 <!--
