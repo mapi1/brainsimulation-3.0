@@ -12,11 +12,8 @@ format:
     footer: "© Marius Pille, Leon Martin, Petra Ritter, Charité University Medicine Berlin"
     code-overflow: wrap
     preview-links: false
-    self-contained: true
     include-in-header:
       - header.html
-    template-partials:
-      - title-slide.html
     margin: 0.05
     mermaid-format: html
     mermaid:
@@ -28,15 +25,19 @@ format:
 
 author:
   - name: Marius Pille
-    orcid: 0009-0000-5087-8450
+    # orcid: 0009-0000-5087-8450
     email: marius.pille@bih-charite.de
-    affiliations: Berlin Institute of Health at Charité University Medicine
+    # affiliations: Berlin Institute of Health at Charité University Medicine
   - name: Leon Martin
-    orcid: 0000-0002-2599-0165
+    # orcid: 0000-0002-2599-0165
     email: leon.martin@bih-charite.de
-    affiliations: Berlin Institute of Health at Charité University Medicine
+    # affiliations: Berlin Institute of Health at Charité University Medicine
 date: last-modified
 bibliography: bibliography.bib
+title-slide-attributes:
+  data-background-image: figures/Titleslide/background.png
+  data-background-size: cover
+  data-background-opacity: "0.16"
 ---
 
 ## Classic TVB - What is it?

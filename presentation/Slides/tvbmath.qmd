@@ -1,0 +1,48 @@
+## Classic TVB - Math
+
+:::: {.columns}
+
+::: {.column}
+::: {.fragment fragment-index=0}
+$$
+dS_i = \left[f_d(S_i, \theta^d, C_i, I_i) \right]dt + g(S_i, \theta^g)\, dW_i
+$$
+
+::: {style="font-size: 0.55em;"}
+
+**State Evolution**
+
+- $S_i$ - state variables at node $i$
+- $f_d$ - dynamics function with parameters $\theta^d$
+- $C_i$ - coupling input from connected nodes
+- $I_i$ - external input (stimulation, driving signals)
+- $g$ - noise diffusion coefficient with parameters $\theta^g$
+- $dW_i$ - Wiener process (stochastic fluctuations)
+:::
+
+:::
+
+:::
+
+
+::: {.column}
+
+::: {.fragment fragment-index=2}
+$$
+C_i = f_c^{\text{post}}\Big(\sum_j A_{ij}\, f_c^{\text{pre}}(S_i, S_j(t-\tau_{ij}), \theta^c), S_i, \theta^c\Big)
+$$
+
+::: {style="font-size: 0.55em;"}
+**Coupling**
+
+- $f_c^{\text{pre}}$ - pre-aggregation transformation
+- $A_{ij}$ - structural connectivity weight ($j \to i$)
+- $\tau_{ij}$ - transmission delay (tract length / conduction speed)
+- $f_c^{\text{post}}$ - post-aggregation transformation
+- $\theta^c$ - coupling parameters
+:::
+
+:::
+:::
+
+::::
