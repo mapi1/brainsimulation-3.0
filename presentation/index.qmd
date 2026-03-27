@@ -38,6 +38,7 @@ author:
 date: last-modified
 bibliography: bibliography.bib
 ---
+
 ## Motivation
 
 - What is wrong with TVB?
@@ -108,7 +109,7 @@ $$
 ## Specify Reproducible Simulation Experiments with:
 
 
-![Knowledge Management for Digital Brain Twins [@Martin2025]](figures/tvbo_logo.png)
+![Knowledge Management for Digital Brain Twins [@Martin2025]](figures/tvbo_logo.png){width=10px}
 
 
 {{< include Slides/tvbo.qmd >}}
@@ -134,6 +135,8 @@ $$
 
 ## Thank You
 
+::: {.r-stretch}
 {{< include authors_gallery.qmd >}}
+:::
 
 ## References

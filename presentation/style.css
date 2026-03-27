@@ -448,43 +448,123 @@ html[data-theme="dark"] #title-slide .subtitle {
 
 /* ── Title slide background media ───────────────────────────────────────── */
 
-/*
-  Tune these variables to adjust the background appearance:
-  --title-bg-opacity   : 0.0 (invisible) → 1.0 (fully opaque)
-  --title-bg-scale     : fraction of the slide width (e.g. 0.65 = 65 %)
-  --title-bg-rotate    : CSS rotation angle (e.g. -10deg, 5deg, 0deg)
-*/
 :root {
-    --title-bg-opacity: 0.12;
-    --title-bg-scale: 65%;
-    --title-bg-rotate: -8deg;
+    --title-bg-opacity: 0.14;
+}
+
+html[data-theme="dark"] {
+    --title-bg-opacity: 0.22;
 }
 
 #title-slide {
     position: relative;
     overflow: hidden;
+    text-align: left;
+    padding: clamp(1.1rem, 2.7vw, 2.6rem) clamp(1.2rem, 3.6vw, 3.4rem);
+    display: flex;
+    align-items: stretch;
+}
+
+#title-slide .title-content {
+    position: relative;
+    z-index: 2;
+    width: min(900px, 100%);
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.7rem;
+}
+
+#title-slide .title {
+    font-size: clamp(2.55rem, 5.3vw, 5.7rem);
+    line-height: 1.03;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+#title-slide .subtitle {
+    font-size: clamp(1.2rem, 2.25vw, 2.15rem);
+    line-height: 1.22;
+    max-width: none;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0.2rem;
+    margin-bottom: 0.35rem;
+    text-align: left;
+}
+
+#title-slide .quarto-title-authors {
+    margin-top: 0.9rem;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: clamp(1.2rem, 3vw, 2.8rem);
+}
+
+#title-slide .quarto-title-author {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+html[data-theme="dark"] #title-slide .quarto-title-author {
+    border-color: transparent;
+    background: transparent;
+}
+
+#title-slide .quarto-title-author-name {
+    font-size: clamp(1rem, 1.35vw, 1.35rem);
+    font-weight: 700;
+}
+
+#title-slide .quarto-title-author-email,
+#title-slide .quarto-title-affiliation,
+#title-slide .date {
+    font-size: clamp(0.72rem, 0.94vw, 1rem);
+    line-height: 1.25;
+}
+
+#title-slide .quarto-title-author-email {
+    margin-top: 0.2rem;
 }
 
 .title-bg-media {
     position: absolute;
     inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     pointer-events: none;
     z-index: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    opacity: var(--title-bg-opacity);
 }
 
 .title-bg-image {
-    width: var(--title-bg-scale);
-    max-width: 700px;
-    opacity: var(--title-bg-opacity);
-    transform: rotate(var(--title-bg-rotate));
+    max-width: min(48vw, 620px);
+    max-height: min(78vh, 620px);
+    width: auto;
+    height: auto;
     object-fit: contain;
 }
 
+.title-bg-image-left {
+    justify-self: start;
+    align-self: end;
+    transform: translate(-9%, 7%) scale(1.04);
+}
+
+.title-bg-image-right {
+    justify-self: end;
+    align-self: center;
+    transform: translate(6%, 0%) scale(1.02);
+}
+
 /* Ensure all title slide text/content sits above the background layer */
-#title-slide> :not(.title-bg-media) {
+#title-slide > :not(.title-bg-media) {
     position: relative;
     z-index: 1;
 }
@@ -552,4 +632,17 @@ html[data-theme="dark"] #title-slide .subtitle {
     opacity: 0.7;
     margin-top: 0.15rem;
     line-height: 1.3;
+}
+
+/* Classic TVB - Math: keep title on top and center the columns block vertically */
+.reveal .slides section#classic-tvb---math {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+.reveal .slides section#classic-tvb---math > .columns {
+    align-self: center;
+    width: 100%;
+    align-items: center !important;
 }
