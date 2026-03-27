@@ -528,3 +528,17 @@ html[data-theme="dark"] #title-slide .subtitle {
     width: 100%;
     align-items: center !important;
 }
+
+/* Vertically center slide content (body only, not heading) */
+.reveal .slides section.center-v {
+    display: flex !important;
+    flex-direction: column;
+    height: 100%;
+}
+.reveal .slides section.center-v > h2 {
+    flex-shrink: 0;
+}
+.reveal .slides section.center-v > :not(h2) {
+    margin-top: auto;
+    margin-bottom: auto;
+}
