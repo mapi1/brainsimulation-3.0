@@ -133,4 +133,11 @@ display(img)
 {{< include authors_gallery.qmd >}}
 :::
 
+## Have a nice Weekend!
+
+And thanks for the new coffee machine :)
+
+![](figures/happy-cute-smiling-coffee-bean-and-cups-vector-26755419.png){fig-align="center"}
+
+
 ## References
