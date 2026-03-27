@@ -797,7 +797,7 @@ functions:
 observations:
     empirical_fc:
         label: "Empirical Functional Connectivity"
-        source: network.observations.BoldCorrelation
+        source: network.edges.fc
 
     bold:
         label: "Simulated BOLD Signal"
@@ -905,9 +905,13 @@ execution:
     n_workers: 8
     precision: float64
     random_seed: 0
-""".replace("__LOBAR8_H5__", _lobar8_h5)
+""".replace(
+    "__LOBAR8_H5__", _lobar8_h5
+)
 
 exp = SimulationExperiment.from_string(yaml_definition)
 results = exp.run("tvboptim")
+
+results.optimizations.regional_optimization.plot()
 ```
 

@@ -1,17 +1,8 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# GitLab CI — render Quarto presentation → deploy to GitLab Pages + gh-pages
+# GitLab CI — render Quarto presentation → deploy to GitLab Pages
 #
-# Two deployment targets:
-#   1. GitLab Pages  — artifacts-based (public/), served at your GitLab Pages URL
-#   2. gh-pages branch — force-pushed rendered HTML for GitHub Pages interop
-#
-# Required CI/CD variable (Settings → CI/CD → Variables):
-#   DEPLOY_TOKEN  — a project access token with "write_repository" scope
-#                   (or enable "Allow CI job token to push" in project settings
-#                    and use CI_JOB_TOKEN instead — see deploy-gh-pages script)
-#
-# Optional variable to skip Python re-execution when _freeze/ is committed:
-#   QUARTO_FREEZE  — set to "true" (default) to use frozen results if available
+# Deployment:
+#   GitLab Pages — artifacts-based (public/), served at your GitLab Pages URL
 # ─────────────────────────────────────────────────────────────────────────────
 
 stages:
@@ -21,41 +12,40 @@ stages:
 variables:
   QUARTO_VERSION: "1.7.24"
   PYTHON_VERSION: "3.13"
-  # Point at the rendered presentation inside the repo
-  PRESENTATION_DIR: "presentation"
-  PRESENTATION_QMD: "presentation.qmd"
-  OUTPUT_HTML: "presentation.html"
 
-# ── Shared setup template ────────────────────────────────────────────────────
+# ── Shared setup template (macOS shell executor) ─────────────────────────────
 .install_quarto: &install_quarto
-  - apt-get update -qq && apt-get install -y -qq wget curl git ca-certificates 2>/dev/null
   - |
-    ARCH=$(dpkg --print-architecture)
-    URL="https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${ARCH}.deb"
-    wget -q "$URL" -O quarto.deb
-    dpkg -i quarto.deb
-    rm quarto.deb
+    if command -v quarto &>/dev/null && [[ "$(quarto --version)" == "${QUARTO_VERSION}" ]]; then
+      echo "Quarto ${QUARTO_VERSION} already installed"
+    else
+      ARCH=$(uname -m)
+      URL="https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-macos.pkg"
+      curl -fsSL "$URL" -o /tmp/quarto.pkg
+      sudo installer -pkg /tmp/quarto.pkg -target /
+      rm /tmp/quarto.pkg
+    fi
   - quarto check install
 
 # ── Job: render ──────────────────────────────────────────────────────────────
 render:
   stage: render
-  image: python:${PYTHON_VERSION}-slim
   before_script:
     - *install_quarto
-    # Install uv for fast dependency resolution
-    - pip install -q uv
-    # Core packages used in the presentation
-    # Both are on PyPI; tvbo[all] pulls JAX, sympy, etc.
-    - uv pip install --system tvbo[all] bsplot
+    # Install uv if not already available
+    - command -v uv &>/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh
+    - export PATH="$HOME/.local/bin:$PATH"
+    # Create venv and install dependencies
+    - uv venv .venv --python ${PYTHON_VERSION}
+    - source .venv/bin/activate
+    - uv pip install tvbo[all] bsplot jupyter-cache
   script:
-    - cd ${PRESENTATION_DIR}
-    - quarto render ${PRESENTATION_QMD} --output ${OUTPUT_HTML}
-    - ls -lh ${OUTPUT_HTML}
+    - source .venv/bin/activate
+    - cd presentation && quarto render
   artifacts:
     name: "presentation-html"
     paths:
-      - ${PRESENTATION_DIR}/${OUTPUT_HTML}
+      - public/
     expire_in: 7 days
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
@@ -66,69 +56,13 @@ render:
 # Served at: https://<namespace>.pages.<gitlab-host>/<project>/
 pages:
   stage: deploy
-  image: alpine:latest
   needs:
     - job: render
       artifacts: true
   script:
-    - mkdir -p public
-    - cp ${PRESENTATION_DIR}/${OUTPUT_HTML} public/index.html
-    - echo "Deployed to GitLab Pages → public/index.html"
+    - echo "Deploying to GitLab Pages"
   artifacts:
     paths:
       - public
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-
-# ── Job: deploy-gh-pages (push to gh-pages branch) ──────────────────────────
-# Creates / force-updates the gh-pages branch with only the rendered HTML,
-# making the repo compatible with GitHub Pages if mirrored to GitHub.
-#
-# Uses DEPLOY_TOKEN (preferred) or CI_JOB_TOKEN (requires project setting).
-deploy-gh-pages:
-  stage: deploy
-  image: alpine/git:latest
-  needs:
-    - job: render
-      artifacts: true
-  script:
-    # ── Configure git identity ──────────────────────────────────────────────
-    - git config --global user.email "ci@gitlab"
-    - git config --global user.name "GitLab CI"
-
-    # ── Authenticate: prefer explicit DEPLOY_TOKEN, fall back to CI_JOB_TOKEN
-    - |
-      if [ -n "$DEPLOY_TOKEN" ]; then
-        PUSH_URL="https://oauth2:${DEPLOY_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
-      else
-        # Requires "Allow CI job token to push" enabled in project settings:
-        # Settings → CI/CD → Token Access → Allow CI job token to push
-        PUSH_URL="https://oauth2:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
-      fi
-      git remote set-url origin "$PUSH_URL"
-
-    # ── Build a clean gh-pages tree ─────────────────────────────────────────
-    - TMPDIR=$(mktemp -d)
-    - cp ${PRESENTATION_DIR}/${OUTPUT_HTML} "${TMPDIR}/index.html"
-
-    # Keep a minimal root redirect so bare domain / GitHub Pages root works
-    - |
-      cat > "${TMPDIR}/.nojekyll" << 'EOF'
-      EOF
-
-    # ── Orphan commit to gh-pages (no history bloat) ────────────────────────
-    - cd "$TMPDIR"
-    - git init
-    - git checkout --orphan gh-pages
-    - git add .
-    - |
-      git commit -m "ci: deploy presentation @ ${CI_COMMIT_SHORT_SHA} [skip ci]
-
-      Rendered from: ${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA}
-      Pipeline:      ${CI_PIPELINE_URL}"
-    - git remote add origin "$PUSH_URL"
-    - git push origin gh-pages --force
-
-    - echo "✓ gh-pages branch updated → ${CI_PROJECT_URL}/tree/gh-pages"
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'

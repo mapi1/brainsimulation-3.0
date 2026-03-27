@@ -488,3 +488,68 @@ html[data-theme="dark"] #title-slide .subtitle {
     position: relative;
     z-index: 1;
 }
+
+/* Feature gallery cards */
+.feature-gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 0.5rem;
+    height: calc(var(--code-body-height, 560px) - 0.5rem);
+}
+
+.feature-gallery .card {
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--card-text);
+    padding: 0.35rem;
+    text-align: center;
+    font-size: 0.55em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-gallery .card:hover {
+    transform: scale(1.5);
+    z-index: 1;
+    box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
+
+.feature-gallery .card img {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    object-fit: contain;
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+}
+
+.feature-gallery .card .card-placeholder {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    background: var(--toggle-bg);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+    font-size: 1.5em;
+}
+
+.feature-gallery .card .card-label {
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.feature-gallery .card .card-subs {
+    font-size: 0.85em;
+    opacity: 0.7;
+    margin-top: 0.15rem;
+    line-height: 1.3;
+}

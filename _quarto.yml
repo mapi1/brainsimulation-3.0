@@ -1,8 +1,8 @@
 project:
   render:
-    - presentation/index.qmd
-  output-dir: public
-  pre-render: ./setup.sh
+    - index.qmd
+  output-dir: ../public
+  pre-render: ../setup.sh
 
 jupyter: python3
 

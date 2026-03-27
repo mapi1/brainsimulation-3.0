@@ -1,0 +1,16 @@
+project:
+  render:
+    - index.qmd
+  output-dir: ../public
+  pre-render: ../setup.sh
+
+format:
+  revealjs:
+    favicon: ../tvboptim.ico
+
+jupyter: python3
+
+execute:
+  freeze: auto
+
+cache: true
